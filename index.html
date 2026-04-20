@@ -1,0 +1,1666 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="ระบบประเมินสุขภาพจิตนักเรียน - แบบประเมินออนไลน์">
+  <title>🧠 ระบบประเมินสุขภาพจิตนักเรียน</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: .5
+      }
+
+      50% {
+        opacity: 1
+      }
+    }
+
+    :root {
+      --primary: #6366f1;
+      --primary-dark: #4f46e5;
+      --primary-light: #a5b4fc;
+      --accent: #f59e0b;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --bg: #0f172a;
+      --bg2: #1e293b;
+      --bg3: #334155;
+      --card: rgba(30, 41, 59, .85);
+      --text: #f1f5f9;
+      --text2: #94a3b8;
+      --radius: 16px;
+      --shadow: 0 8px 32px rgba(0, 0, 0, .3);
+      --sidebar-w: 260px;
+    }
+
+    body {
+      font-family: 'Noto Sans Thai', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at 30% 20%, rgba(99, 102, 241, .15), transparent 50%),
+        radial-gradient(circle at 70% 80%, rgba(245, 158, 11, .1), transparent 50%);
+      z-index: 0;
+      animation: bgMove 20s ease-in-out infinite alternate;
+    }
+
+    @keyframes bgMove {
+      to {
+        transform: translate(5%, 3%) rotate(2deg)
+      }
+    }
+
+    /* ===== TOAST ===== */
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 10000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px
+    }
+
+    .toast {
+      padding: 14px 24px;
+      border-radius: 12px;
+      color: #fff;
+      font-weight: 500;
+      animation: slideIn .4s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow);
+      max-width: 380px
+    }
+
+    .toast.success {
+      background: linear-gradient(135deg, #10b981, #059669)
+    }
+
+    .toast.error {
+      background: linear-gradient(135deg, #ef4444, #dc2626)
+    }
+
+    .toast.info {
+      background: linear-gradient(135deg, #6366f1, #4f46e5)
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0
+      }
+
+      to {
+        transform: translateX(0);
+        opacity: 1
+      }
+    }
+
+    @keyframes slideOut {
+      from {
+        opacity: 1
+      }
+
+      to {
+        transform: translateX(100%);
+        opacity: 0
+      }
+    }
+
+    /* ===== CONFETTI ===== */
+    .confetti-piece {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      top: -10px;
+      z-index: 9999;
+      animation: confettiFall 3s ease-in forwards
+    }
+
+    @keyframes confettiFall {
+      to {
+        top: 110vh;
+        transform: rotate(720deg)
+      }
+    }
+
+    /* ===== LOADER ===== */
+    .loader-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, .8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9998;
+      backdrop-filter: blur(4px)
+    }
+
+    .loader {
+      width: 48px;
+      height: 48px;
+      border: 4px solid var(--bg3);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin .8s linear infinite
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg)
+      }
+    }
+
+    /* ===== LAYOUT ===== */
+    .app-layout {
+      display: flex;
+      min-height: 100vh;
+      position: relative;
+      z-index: 1
+    }
+
+    /* ===== SIDEBAR ===== */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: rgba(15, 23, 42, .95);
+      backdrop-filter: blur(24px);
+      border-right: 1px solid rgba(255, 255, 255, .08);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      z-index: 200;
+      transform: translateX(-100%);
+      transition: transform .35s cubic-bezier(.4, 0, .2, 1);
+      overflow: hidden;
+    }
+
+    .sidebar.open {
+      transform: translateX(0)
+    }
+
+    .sidebar-header {
+      padding: 24px 20px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, .07);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .sidebar-brand {
+      font-size: 17px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sidebar-brand span {
+      background: linear-gradient(135deg, var(--primary-light), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .sidebar-close {
+      background: none;
+      border: none;
+      color: var(--text2);
+      cursor: pointer;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      transition: all .2s;
+    }
+
+    .sidebar-close:hover {
+      background: rgba(255, 255, 255, .08);
+      color: var(--text)
+    }
+
+    /* User badge inside sidebar */
+    .sidebar-user {
+      margin: 16px 20px;
+      padding: 12px 16px;
+      background: rgba(99, 102, 241, .1);
+      border: 1px solid rgba(99, 102, 241, .25);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .sidebar-user .avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-user .user-name {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .sidebar-user .user-role {
+      font-size: 12px;
+      color: var(--text2);
+      margin-top: 2px;
+    }
+
+    /* Nav menu */
+    .sidebar-nav {
+      padding: 8px 12px;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .sidebar-section-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text2);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      padding: 12px 8px 6px;
+    }
+
+    .sidebar-nav-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 12px;
+      border: none;
+      border-radius: 10px;
+      background: transparent;
+      color: var(--text2);
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all .2s;
+      text-align: left;
+      margin-bottom: 2px;
+    }
+
+    .sidebar-nav-btn .nav-icon {
+      font-size: 18px;
+      flex-shrink: 0;
+      width: 24px;
+      text-align: center;
+    }
+
+    .sidebar-nav-btn:hover {
+      background: rgba(255, 255, 255, .07);
+      color: var(--text);
+    }
+
+    .sidebar-nav-btn.active {
+      background: rgba(99, 102, 241, .18);
+      color: var(--primary-light);
+      font-weight: 600;
+    }
+
+    .sidebar-nav-btn.active .nav-icon {
+      filter: drop-shadow(0 0 6px rgba(99, 102, 241, .6));
+    }
+
+    .sidebar-footer {
+      padding: 16px 12px;
+      border-top: 1px solid rgba(255, 255, 255, .07);
+    }
+
+    .sidebar-logout-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 12px;
+      border: 1px solid rgba(239, 68, 68, .3);
+      border-radius: 10px;
+      background: rgba(239, 68, 68, .08);
+      color: #f87171;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all .2s;
+    }
+
+    .sidebar-logout-btn:hover {
+      background: rgba(239, 68, 68, .18);
+      border-color: rgba(239, 68, 68, .5);
+    }
+
+    /* Overlay backdrop */
+    .sidebar-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .5);
+      backdrop-filter: blur(2px);
+      z-index: 199;
+      opacity: 0;
+      transition: opacity .3s;
+    }
+
+    .sidebar-backdrop.visible {
+      display: block;
+      opacity: 1;
+    }
+
+    /* ===== NAVBAR ===== */
+    .navbar {
+      background: var(--card);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255, 255, 255, .08);
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .navbar .brand {
+      font-size: 18px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px
+    }
+
+    .navbar .brand span {
+      background: linear-gradient(135deg, var(--primary-light), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* Admin toggle button in navbar */
+    .btn-admin-toggle {
+      display: none;
+      /* hidden until logged in */
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border: 1px solid rgba(99, 102, 241, .4);
+      border-radius: 10px;
+      background: rgba(99, 102, 241, .12);
+      color: var(--primary-light);
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .25s;
+    }
+
+    .btn-admin-toggle:hover {
+      background: rgba(99, 102, 241, .22);
+      border-color: rgba(99, 102, 241, .7);
+    }
+
+    .btn-admin-toggle .hamburger {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      width: 18px;
+    }
+
+    .btn-admin-toggle .hamburger span {
+      display: block;
+      height: 2px;
+      width: 100%;
+      background: currentColor;
+      border-radius: 2px;
+      transition: all .3s;
+    }
+
+    .navbar .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* ===== PAGES ===== */
+    .main-content {
+      flex: 1;
+      min-height: 100vh;
+    }
+
+    .page {
+      display: none;
+      animation: fadeIn .5s ease
+    }
+
+    .page.active {
+      display: block
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
+
+    /* ===== LOGIN ===== */
+    .login-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px
+    }
+
+    .login-card {
+      background: var(--card);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, .1);
+      border-radius: 24px;
+      padding: 48px 40px;
+      width: 100%;
+      max-width: 440px;
+      box-shadow: var(--shadow);
+    }
+
+    .login-card h1 {
+      font-size: 28px;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, var(--primary-light), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent
+    }
+
+    .login-card .subtitle {
+      text-align: center;
+      color: var(--text2);
+      margin-bottom: 32px;
+      font-size: 14px
+    }
+
+    .login-icon {
+      text-align: center;
+      font-size: 56px;
+      margin-bottom: 16px;
+      animation: float 3s ease-in-out infinite
+    }
+
+    @keyframes float {
+
+      0%,
+      100% {
+        transform: translateY(0)
+      }
+
+      50% {
+        transform: translateY(-10px)
+      }
+    }
+
+    /* ===== FORM ===== */
+    .form-group {
+      margin-bottom: 20px
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 6px;
+      font-size: 14px;
+      color: var(--text2)
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px 16px;
+      background: var(--bg);
+      border: 2px solid var(--bg3);
+      border-radius: 12px;
+      color: var(--text);
+      font-size: 15px;
+      font-family: inherit;
+      transition: all .3s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(99, 102, 241, .2)
+    }
+
+    .form-group select option {
+      background: var(--bg2)
+    }
+
+    .btn {
+      padding: 12px 28px;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .3s;
+      font-family: inherit;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, .3)
+    }
+
+    .btn:active {
+      transform: translateY(0)
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #fff
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, var(--success), #059669);
+      color: #fff
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, var(--danger), #dc2626);
+      color: #fff
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 2px solid var(--bg3);
+      color: var(--text)
+    }
+
+    .btn-outline:hover {
+      border-color: var(--primary);
+      color: var(--primary-light)
+    }
+
+    .btn-block {
+      width: 100%;
+      justify-content: center
+    }
+
+    .btn-lg {
+      padding: 16px 32px;
+      font-size: 17px
+    }
+
+    /* ===== CONTAINER ===== */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px
+    }
+
+    .page-title {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px
+    }
+
+    /* ===== STATS ===== */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px
+    }
+
+    .stat-card {
+      background: var(--card);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, .08);
+      border-radius: var(--radius);
+      padding: 24px;
+      transition: all .3s
+    }
+
+    .stat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow)
+    }
+
+    .stat-card .stat-icon {
+      font-size: 32px;
+      margin-bottom: 12px
+    }
+
+    .stat-card .stat-value {
+      font-size: 32px;
+      font-weight: 700
+    }
+
+    .stat-card .stat-label {
+      color: var(--text2);
+      font-size: 13px;
+      margin-top: 4px
+    }
+
+    .card {
+      background: var(--card);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, .08);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px
+    }
+
+    .card-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    /* ===== TABLE ===== */
+    .table-wrap {
+      overflow-x: auto
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse
+    }
+
+    th,
+    td {
+      padding: 12px 16px;
+      text-align: left;
+      font-size: 14px;
+      white-space: nowrap
+    }
+
+    th {
+      color: var(--text2);
+      font-weight: 600;
+      border-bottom: 2px solid var(--bg3)
+    }
+
+    td {
+      border-bottom: 1px solid rgba(255, 255, 255, .05)
+    }
+
+    tr:hover td {
+      background: rgba(99, 102, 241, .05)
+    }
+
+    .badge {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      display: inline-block
+    }
+
+    .badge-green {
+      background: rgba(16, 185, 129, .15);
+      color: #34d399
+    }
+
+    .badge-yellow {
+      background: rgba(245, 158, 11, .15);
+      color: #fbbf24
+    }
+
+    .badge-orange {
+      background: rgba(249, 115, 22, .15);
+      color: #fb923c
+    }
+
+    .badge-red {
+      background: rgba(239, 68, 68, .15);
+      color: #f87171
+    }
+
+    .badge-purple {
+      background: rgba(139, 92, 246, .15);
+      color: #a78bfa
+    }
+
+    /* ===== QUESTIONS ===== */
+    .question-card {
+      background: var(--card);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, .08);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 16px;
+      transition: all .3s
+    }
+
+    .question-card:hover {
+      border-color: rgba(99, 102, 241, .3)
+    }
+
+    .question-card .q-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #fff;
+      font-weight: 700;
+      font-size: 14px;
+      margin-right: 12px
+    }
+
+    .question-card .q-text {
+      font-weight: 500;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center
+    }
+
+    .radio-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px
+    }
+
+    .radio-option {
+      position: relative
+    }
+
+    .radio-option input {
+      display: none
+    }
+
+    .radio-option label {
+      display: block;
+      padding: 10px 20px;
+      border-radius: 10px;
+      border: 2px solid var(--bg3);
+      cursor: pointer;
+      font-size: 14px;
+      transition: all .3s;
+      text-align: center;
+      min-width: 60px
+    }
+
+    .radio-option input:checked+label {
+      border-color: var(--primary);
+      background: rgba(99, 102, 241, .15);
+      color: var(--primary-light)
+    }
+
+    /* ===== PROGRESS ===== */
+    .progress-bar {
+      height: 8px;
+      background: var(--bg3);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 8px
+    }
+
+    .progress-bar .fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      border-radius: 8px;
+      transition: width .5s ease
+    }
+
+    .progress-text {
+      font-size: 13px;
+      color: var(--text2);
+      text-align: right
+    }
+
+    /* ===== RESULT CIRCLE ===== */
+    .result-circle {
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      position: relative
+    }
+
+    .result-circle::before {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: 50%;
+      padding: 4px;
+      background: conic-gradient(var(--primary), var(--accent), var(--primary));
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      animation: spin 4s linear infinite
+    }
+
+    .result-circle .score {
+      font-size: 48px;
+      font-weight: 700
+    }
+
+    .result-circle .score-label {
+      font-size: 13px;
+      color: var(--text2)
+    }
+
+    /* ===== CHART ===== */
+    .chart-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 12px;
+      height: 200px;
+      padding-top: 20px
+    }
+
+    .chart-bar {
+      flex: 1;
+      border-radius: 8px 8px 0 0;
+      position: relative;
+      transition: height .8s ease;
+      min-width: 40px
+    }
+
+    .chart-bar .bar-label {
+      position: absolute;
+      bottom: -24px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 11px;
+      color: var(--text2);
+      white-space: nowrap
+    }
+
+    .chart-bar .bar-value {
+      position: absolute;
+      top: -24px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 13px;
+      font-weight: 600
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media(max-width:768px) {
+      .navbar {
+        padding: 0 16px
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr 1fr
+      }
+
+      .login-card {
+        padding: 32px 24px
+      }
+
+      .container {
+        padding: 16px
+      }
+
+      .radio-group {
+        flex-direction: column
+      }
+    }
+
+    @media(max-width:480px) {
+      .stats-grid {
+        grid-template-columns: 1fr
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="toast-container" class="toast-container"></div>
+  <div id="loader" class="loader-overlay" style="display:none">
+    <div class="loader"></div>
+  </div>
+
+  <!-- ===== SIDEBAR BACKDROP ===== -->
+  <div id="sidebar-backdrop" class="sidebar-backdrop" onclick="closeSidebar()"></div>
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-brand">🧠 <span>MindCare</span></div>
+      <button class="sidebar-close" onclick="closeSidebar()" title="ปิด">✕</button>
+    </div>
+
+    <div class="sidebar-user" id="sidebar-user-info">
+      <div class="avatar" id="sidebar-avatar">A</div>
+      <div>
+        <div class="user-name" id="sidebar-username">Admin</div>
+        <div class="user-role">ผู้ดูแลระบบ</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="sidebar-section-label">เมนูหลัก</div>
+
+      <button class="sidebar-nav-btn" id="snav-assess" onclick="sidebarNav('assess', this)">
+        <span class="nav-icon">📝</span> ทำแบบประเมิน
+      </button>
+
+      <div class="sidebar-section-label">แอดมิน</div>
+
+      <button class="sidebar-nav-btn" id="snav-dashboard" onclick="sidebarNav('dashboard', this)">
+        <span class="nav-icon">📊</span> แดชบอร์ดภาพรวม
+      </button>
+
+      <button class="sidebar-nav-btn" id="snav-results" onclick="sidebarNav('results', this)">
+        <span class="nav-icon">📋</span> ผลการประเมินทั้งหมด
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="sidebar-logout-btn" onclick="doLogout()">
+        <span>🚪</span> ออกจากระบบ
+      </button>
+    </div>
+  </aside>
+
+  <!-- ===== NAVBAR ===== -->
+  <nav id="navbar" class="navbar">
+    <div class="brand">🧠 <span>MindCare</span></div>
+    <div class="nav-right">
+      <!-- Admin toggle (shown when logged in) -->
+      <button class="btn-admin-toggle" id="btn-admin-toggle" onclick="toggleSidebar()">
+        <div class="hamburger">
+          <span></span><span></span><span></span>
+        </div>
+        เมนูแอดมิน
+      </button>
+      <!-- Login button (shown when not logged in) -->
+      <button class="btn btn-outline" id="btn-login-nav" onclick="showPage('login', null)"
+        style="padding:8px 16px;font-size:13px">สำหรับผู้ดูแลระบบ</button>
+    </div>
+  </nav>
+
+  <!-- ===== MAIN WRAPPER ===== -->
+  <div class="main-content">
+
+    <!-- ===== LOGIN PAGE ===== -->
+    <div id="page-login" class="page">
+      <div class="login-wrapper">
+        <div class="login-card">
+          <div class="login-icon">🧠</div>
+          <h1>ระบบประเมินสุขภาพจิต</h1>
+          <p class="subtitle">Mental Health Assessment System</p>
+          <div class="form-group">
+            <label for="login-user">👤 ชื่อผู้ใช้</label>
+            <input type="text" id="login-user" placeholder="กรอกชื่อผู้ใช้" autocomplete="username">
+          </div>
+          <div class="form-group">
+            <label for="login-pass">🔒 รหัสผ่าน</label>
+            <input type="password" id="login-pass" placeholder="กรอกรหัสผ่าน" autocomplete="current-password">
+          </div>
+          <button class="btn btn-primary btn-block btn-lg" onclick="doLogin()">เข้าสู่ระบบ</button>
+          <p style="text-align:center;margin-top:20px;font-size:13px;color:var(--text2)">💡 กรุณากรอกข้อมูลให้ครบถ้วน
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== DASHBOARD ===== -->
+    <div id="page-dashboard" class="page">
+      <div class="container">
+        <div class="page-title">📊 แดชบอร์ดภาพรวม</div>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">📝</div>
+            <div class="stat-value" id="stat-total">0</div>
+            <div class="stat-label">การประเมินทั้งหมด</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">💚</div>
+            <div class="stat-value" id="stat-normal">0</div>
+            <div class="stat-label">ปกติ</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">💛</div>
+            <div class="stat-value" id="stat-low">0</div>
+            <div class="stat-label">เสี่ยงเล็กน้อย</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🧡</div>
+            <div class="stat-value" id="stat-mid">0</div>
+            <div class="stat-label">เสี่ยงปานกลาง</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">❤️</div>
+            <div class="stat-value" id="stat-high">0</div>
+            <div class="stat-label">เสี่ยงสูง / สูงมาก</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">📊 กราฟระดับความเสี่ยง</div>
+          <div class="chart-bars" id="chart-risk"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">🕐 การประเมินล่าสุด</div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>วันที่</th>
+                  <th>ชื่อ</th>
+                  <th>ชั้น</th>
+                  <th>คะแนน</th>
+                  <th>ระดับ</th>
+                </tr>
+              </thead>
+              <tbody id="recent-table"></tbody>
+            </table>
+          </div>
+          <div id="recent-pagination"
+            style="display:flex;justify-content:center;align-items:center;gap:12px;margin-top:16px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ASSESSMENT ===== -->
+    <div id="page-assess" class="page active">
+      <div class="container" style="max-width:800px">
+        <div class="page-title">📝 แบบประเมินสุขภาพจิตนักเรียน</div>
+        <div class="card">
+          <div class="card-title">👤 ข้อมูลนักเรียน</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+            <div class="form-group"><label>ชื่อ-นามสกุล</label><input type="text" id="f-name"
+                placeholder="ชื่อ นามสกุล"></div>
+            <div class="form-group"><label>ชั้นเรียน</label>
+              <select id="f-class">
+                <option value="">เลือกชั้น</option>
+                <option>ม.1</option>
+                <option>ม.2</option>
+                <option>ม.3</option>
+                <option>ม.4</option>
+                <option>ม.5</option>
+                <option>ม.6</option>
+                <option>ป.1</option>
+                <option>ป.2</option>
+                <option>ป.3</option>
+                <option>ป.4</option>
+                <option>ป.5</option>
+                <option>ป.6</option>
+              </select>
+            </div>
+            <div class="form-group"><label>เลขที่</label><input type="number" id="f-num" placeholder="เลขที่"></div>
+            <div class="form-group"><label>อายุ</label><input type="number" id="f-age" placeholder="อายุ"></div>
+            <div class="form-group"><label>เพศ</label>
+              <select id="f-gender">
+                <option value="">เลือกเพศ</option>
+                <option>ชาย</option>
+                <option>หญิง</option>
+                <option>อื่นๆ</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">📋 คำถามประเมินสุขภาพจิต</div>
+          <p style="color:var(--text2);font-size:14px;margin-bottom:20px">เลือกคะแนน 0-4
+            ตามระดับที่ตรงกับความรู้สึกในช่วง 2 สัปดาห์ที่ผ่านมา<br>0 = ไม่เลย, 1 = นานๆ ครั้ง, 2 = บางครั้ง, 3 = บ่อย,
+            4 = ทุกวัน</p>
+          <div class="progress-bar">
+            <div class="fill" id="progress-fill" style="width:0%"></div>
+          </div>
+          <p class="progress-text" id="progress-text">0 / 10 ข้อ</p>
+          <div id="questions-container"></div>
+        </div>
+        <div class="form-group"><label>📝 หมายเหตุเพิ่มเติม (ถ้ามี)</label><textarea id="f-note" rows="3"
+            placeholder="หมายเหตุ..."></textarea></div>
+        <button class="btn btn-success btn-block btn-lg" onclick="submitAssessment()">✅ ส่งแบบประเมิน</button>
+      </div>
+    </div>
+
+    <!-- ===== RESULTS ===== -->
+    <div id="page-results" class="page">
+      <div class="container">
+        <div class="page-title">📋 ผลการประเมินทั้งหมด</div>
+        <div class="card">
+          <div class="card-title"
+            style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;align-items:center;">
+            <span>🔍 ตารางผลประเมิน</span>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;font-weight:normal;font-size:14px;">
+              <input type="text" id="filter-name" placeholder="ค้นหาชื่อ..."
+                style="padding:8px 12px;border-radius:8px;border:1px solid var(--bg3);background:var(--bg);color:var(--text);font-family:inherit;width:150px;"
+                oninput="applyResultsFilter()">
+              <select id="filter-class"
+                style="padding:8px 12px;border-radius:8px;border:1px solid var(--bg3);background:var(--bg);color:var(--text);font-family:inherit;width:120px;"
+                onchange="applyResultsFilter()">
+                <option value="">ทุกชั้นเรียน</option>
+                <option>ม.1</option>
+                <option>ม.2</option>
+                <option>ม.3</option>
+                <option>ม.4</option>
+                <option>ม.5</option>
+                <option>ม.6</option>
+                <option>ป.1</option>
+                <option>ป.2</option>
+                <option>ป.3</option>
+                <option>ป.4</option>
+                <option>ป.5</option>
+                <option>ป.6</option>
+              </select>
+              <select id="filter-risk"
+                style="padding:8px 12px;border-radius:8px;border:1px solid var(--bg3);background:var(--bg);color:var(--text);font-family:inherit;width:140px;"
+                onchange="applyResultsFilter()">
+                <option value="">ทุกระดับ</option>
+                <option>ปกติ</option>
+                <option>เสี่ยงเล็กน้อย</option>
+                <option>เสี่ยงปานกลาง</option>
+                <option>เสี่ยงสูง</option>
+                <option>เสี่ยงสูงมาก</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>วันที่</th>
+                  <th>ชื่อ</th>
+                  <th>ชั้น</th>
+                  <th>เลขที่</th>
+                  <th>คะแนน</th>
+                  <th>ระดับ</th>
+                </tr>
+              </thead>
+              <tbody id="results-table"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end .main-content -->
+
+  <!-- ===== RESULT MODAL ===== -->
+  <div id="result-modal"
+    style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.9);z-index:9000;align-items:center;justify-content:center;padding:20px">
+    <div class="card" style="max-width:500px;width:100%;text-align:center">
+      <h2 style="margin-bottom:16px">📊 ผลการประเมิน</h2>
+      <div class="result-circle">
+        <div class="score" id="res-score">0</div>
+        <div class="score-label">คะแนนรวม / 40</div>
+      </div>
+      <div id="res-level" style="font-size:22px;font-weight:700;margin-bottom:12px"></div>
+      <p id="res-advice" style="color:var(--text2);font-size:14px;margin-bottom:24px"></p>
+      <button class="btn btn-primary" onclick="closeResultModal()">✅ ตกลง</button>
+    </div>
+  </div>
+
+  <script>
+    // ===== CONFIG =====
+    const API_URL = 'https://script.google.com/macros/s/AKfycbyrvdZ5q7LmGhAsgtfTKjyzIK0hmZPWYpBU_9rn1yZod5yHoMi_C1unjNqsAROXwUmgiQ/exec';
+
+    // ===== STATE =====
+    let currentUser = null;
+    let questions = [];
+    let currentQuestionIndex = 0;
+    let userAnswers = [];
+    let recentAssessmentsData = [];
+    let currentRecentPage = 1;
+    const recentItemsPerPage = 5;
+    let allResultsData = [];
+
+    const FALLBACK_QUESTIONS = [
+      { order: 1, text: 'รู้สึกเครียดหรือกดดัน', labels: ['ไม่เลย', 'นานๆ ครั้ง', 'บางครั้ง', 'บ่อย', 'ทุกวัน'] },
+      { order: 2, text: 'นอนหลับยากหรือนอนไม่พอ', labels: ['ไม่เลย', 'นานๆ ครั้ง', 'บางครั้ง', 'บ่อย', 'ทุกวัน'] },
+      { order: 3, text: 'รู้สึกเศร้าหรือหดหู่', labels: ['ไม่เลย', 'นานๆ ครั้ง', 'บางครั้ง', 'บ่อย', 'ทุกวัน'] },
+      { order: 4, text: 'ไม่อยากทำกิจกรรมที่เคยชอบ', labels: ['ไม่เลย', 'นานๆ ครั้ง', 'บางครั้ง', 'บ่อย', 'ทุกวัน'] },
+      { order: 5, text: 'รู้สึกวิตกกังวล', labels: ['ไม่เลย', 'นานๆ ครั้ง', 'บางครั้ง', 'บ่อย', 'ทุกวัน'] },
+      { order: 6, text: 'มีปัญหาด้านสมาธิ', labels: ['ไม่เลย', 'นานๆ ครั้ง', 'บางครั้ง', 'บ่อย', 'ทุกวัน'] },
+      { order: 7, text: 'รู้สึกโดดเดี่ยวหรือไม่มีเพื่อน', labels: ['ไม่เลย', 'นานๆ ครั้ง', 'บางครั้ง', 'บ่อย', 'ทุกวัน'] },
+      { order: 8, text: 'มีปัญหาความสัมพันธ์กับครอบครัว', labels: ['ไม่เลย', 'นานๆ ครั้ง', 'บางครั้ง', 'บ่อย', 'ทุกวัน'] },
+      { order: 9, text: 'รู้สึกไม่มีคุณค่าในตัวเอง', labels: ['ไม่เลย', 'นานๆ ครั้ง', 'บางครั้ง', 'บ่อย', 'ทุกวัน'] },
+      { order: 10, text: 'มีความคิดทำร้ายตัวเอง', labels: ['ไม่เลย', 'นานๆ ครั้ง', 'บางครั้ง', 'บ่อย', 'ทุกวัน'] }
+    ];
+
+    // ===== SIDEBAR =====
+    function toggleSidebar() {
+      const sb = document.getElementById('sidebar');
+      const bd = document.getElementById('sidebar-backdrop');
+      if (sb.classList.contains('open')) {
+        closeSidebar();
+      } else {
+        sb.classList.add('open');
+        bd.classList.add('visible');
+        // Highlight active nav item
+        syncSidebarActive();
+      }
+    }
+
+    function closeSidebar() {
+      document.getElementById('sidebar').classList.remove('open');
+      document.getElementById('sidebar-backdrop').classList.remove('visible');
+    }
+
+    function syncSidebarActive() {
+      // Remove active from all sidebar nav btns
+      document.querySelectorAll('.sidebar-nav-btn').forEach(b => b.classList.remove('active'));
+      // Find current active page and mark corresponding sidebar btn
+      const activePage = document.querySelector('.page.active');
+      if (!activePage) return;
+      const pageId = activePage.id.replace('page-', '');
+      const btn = document.getElementById('snav-' + pageId);
+      if (btn) btn.classList.add('active');
+    }
+
+    // Called when user clicks a sidebar menu item
+    function sidebarNav(pageId, btn) {
+      // Update active state visually
+      document.querySelectorAll('.sidebar-nav-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      // Close sidebar with slight delay so user sees the active state change
+      setTimeout(() => {
+        closeSidebar();
+        showPage(pageId, null);
+      }, 180);
+    }
+
+    // ===== NAVIGATION =====
+    function showPage(pageId, btn) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById('page-' + pageId).classList.add('active');
+      if (pageId === 'dashboard') loadDashboard();
+      if (pageId === 'results') loadResults();
+      if (pageId === 'assess') loadAndRenderQuestions();
+    }
+
+    // ===== INIT =====
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('login-pass').addEventListener('keypress', e => {
+        if (e.key === 'Enter') doLogin();
+      });
+      renderQuestionsSkeleton();
+      loadAndRenderQuestions();
+    });
+
+    function renderQuestionsSkeleton() {
+      const container = document.getElementById('questions-container');
+      container.innerHTML = Array.from({ length: 3 }, (_, i) => `
+        <div class="question-card" style="opacity:.5">
+          <div style="height:20px;background:var(--bg3);border-radius:8px;width:${60 + i * 10}%;margin-bottom:12px;animation:pulse 1.5s infinite"></div>
+          <div style="display:flex;gap:8px">${Array.from({ length: 5 }, () => `<div style="height:40px;width:80px;background:var(--bg3);border-radius:10px;animation:pulse 1.5s infinite"></div>`).join('')}</div>
+        </div>
+      `).join('');
+    }
+
+    async function loadAndRenderQuestions() {
+      if (API_URL === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL') {
+        questions = FALLBACK_QUESTIONS;
+        renderQuestions();
+        showToast('ใช้คำถามตัวอย่าง (ยังไม่ได้ตั้ง API URL)', 'info');
+        return;
+      }
+      const res = await apiCall('getQuestions');
+      if (res.success && res.data && res.data.length > 0) {
+        questions = res.data;
+        showToast(`โหลดคำถาม ${questions.length} ข้อจาก Google Sheets เรียบร้อย`, 'success');
+      } else {
+        questions = FALLBACK_QUESTIONS;
+        showToast('ใช้คำถามตัวอย่าง (' + (res.message || 'ไม่พบชีต Questions') + ')', 'info');
+      }
+      renderQuestions();
+    }
+
+    function renderQuestions() {
+      const container = document.getElementById('questions-container');
+      if (!questions.length) { container.innerHTML = '<p style="color:var(--text2);text-align:center">กำลังโหลดคำถาม...</p>'; return; }
+      const q = questions[currentQuestionIndex];
+      container.innerHTML = `
+        <div class="question-card" style="animation:fadeIn 0.3s ease">
+          <div class="q-text" style="font-size:18px"><span class="q-number" style="width:40px;height:40px;font-size:18px">${currentQuestionIndex + 1}</span> ${q.text}</div>
+          <div class="radio-group" style="display:flex;flex-direction:column;gap:12px;margin-top:24px;">
+            ${q.labels.map((lbl, v) => `
+              <div class="radio-option">
+                <input type="radio" name="q${currentQuestionIndex}" id="q${currentQuestionIndex}_${v}" value="${v}"
+                  onchange="selectAnswer(${currentQuestionIndex},${v})"
+                  ${userAnswers[currentQuestionIndex] === String(v) || userAnswers[currentQuestionIndex] === v ? 'checked' : ''}>
+                <label for="q${currentQuestionIndex}_${v}" style="font-size:16px;padding:14px 20px;">${v} — ${lbl}</label>
+              </div>
+            `).join('')}
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:24px;">
+            <button class="btn btn-outline" onclick="prevQuestion()" ${currentQuestionIndex === 0 ? 'style="visibility:hidden"' : ''}>⬅️ ก่อนหน้า</button>
+            <button class="btn btn-outline" onclick="nextQuestion()" ${currentQuestionIndex === questions.length - 1 ? 'style="visibility:hidden"' : ''}>ถัดไป ➡️</button>
+          </div>
+        </div>
+      `;
+      updateProgress();
+    }
+
+    function selectAnswer(qIndex, value) {
+      userAnswers[qIndex] = value;
+      updateProgress();
+      setTimeout(() => { if (currentQuestionIndex < questions.length - 1) nextQuestion(); }, 400);
+    }
+    function prevQuestion() { if (currentQuestionIndex > 0) { currentQuestionIndex--; renderQuestions(); } }
+    function nextQuestion() { if (currentQuestionIndex < questions.length - 1) { currentQuestionIndex++; renderQuestions(); } }
+    function updateProgress() {
+      let answered = userAnswers.filter(a => a !== undefined && a !== null).length;
+      const pct = Math.round(answered / questions.length * 100);
+      document.getElementById('progress-fill').style.width = pct + '%';
+      document.getElementById('progress-text').textContent = `${answered} / ${questions.length} ข้อ`;
+    }
+
+    // ===== TOAST =====
+    function showToast(msg, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const icons = { success: '✅', error: '❌', info: 'ℹ️' };
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.innerHTML = `<span>${icons[type] || ''}</span><span>${msg}</span>`;
+      container.appendChild(toast);
+      setTimeout(() => { toast.style.animation = 'slideOut .4s ease forwards'; setTimeout(() => toast.remove(), 400); }, 3500);
+    }
+
+    // ===== CONFETTI =====
+    function fireConfetti() {
+      const colors = ['#6366f1', '#f59e0b', '#10b981', '#ef4444', '#a78bfa', '#fbbf24', '#34d399'];
+      for (let i = 0; i < 60; i++) {
+        const piece = document.createElement('div');
+        piece.className = 'confetti-piece';
+        piece.style.left = Math.random() * 100 + 'vw';
+        piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.animationDuration = (2 + Math.random() * 2) + 's';
+        piece.style.animationDelay = Math.random() * .5 + 's';
+        piece.style.borderRadius = Math.random() > .5 ? '50%' : '2px';
+        piece.style.width = (6 + Math.random() * 8) + 'px';
+        piece.style.height = (6 + Math.random() * 8) + 'px';
+        document.body.appendChild(piece);
+        setTimeout(() => piece.remove(), 4000);
+      }
+    }
+
+    // ===== LOADER =====
+    function showLoader() { document.getElementById('loader').style.display = 'flex'; }
+    function hideLoader() { document.getElementById('loader').style.display = 'none'; }
+
+    // ===== API =====
+    async function apiCall(action, data = {}) {
+      showLoader();
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ action, ...data })
+        });
+        const json = await res.json();
+        hideLoader();
+        return json;
+      } catch (err) {
+        hideLoader();
+        showToast('เกิดข้อผิดพลาดในการเชื่อมต่อ: ' + err.message, 'error');
+        return { success: false, message: err.message };
+      }
+    }
+
+    // ===== LOGIN =====
+    async function doLogin() {
+      const username = document.getElementById('login-user').value.trim();
+      const password = document.getElementById('login-pass').value.trim();
+      if (!username || !password) { showToast('กรุณากรอกชื่อผู้ใช้และรหัสผ่าน', 'error'); return; }
+
+      const res = await apiCall('login', { username, password });
+      if (res.success) {
+        currentUser = res.user;
+
+        // Update sidebar user info
+        document.getElementById('sidebar-username').textContent = currentUser.fullName;
+        document.getElementById('sidebar-avatar').textContent = currentUser.fullName.charAt(0).toUpperCase();
+
+        // Show admin toggle button, hide login button
+        document.getElementById('btn-admin-toggle').style.display = 'inline-flex';
+        document.getElementById('btn-login-nav').style.display = 'none';
+
+        showPage('dashboard', null);
+        showToast(`ยินดีต้อนรับ ${currentUser.fullName}`, 'success');
+        fireConfetti();
+      } else {
+        showToast(res.message, 'error');
+      }
+    }
+
+    function doLogout() {
+      currentUser = null;
+      closeSidebar();
+
+      // Restore navbar state
+      document.getElementById('btn-admin-toggle').style.display = 'none';
+      document.getElementById('btn-login-nav').style.display = 'inline-flex';
+
+      document.getElementById('login-user').value = '';
+      document.getElementById('login-pass').value = '';
+
+      showPage('assess', null);
+      showToast('ออกจากระบบแล้ว', 'info');
+    }
+
+    // ===== DASHBOARD =====
+    async function loadDashboard() {
+      const res = await apiCall('getDashboard');
+      if (!res.success) return;
+      const d = res.data;
+      document.getElementById('stat-total').textContent = d.totalAssessments;
+      document.getElementById('stat-normal').textContent = d.riskLevels['ปกติ'] || 0;
+      document.getElementById('stat-low').textContent = d.riskLevels['เสี่ยงเล็กน้อย'] || 0;
+      document.getElementById('stat-mid').textContent = d.riskLevels['เสี่ยงปานกลาง'] || 0;
+      document.getElementById('stat-high').textContent = (d.riskLevels['เสี่ยงสูง'] || 0) + (d.riskLevels['เสี่ยงสูงมาก'] || 0);
+
+      const chartEl = document.getElementById('chart-risk');
+      const levels = [
+        { label: 'ปกติ', value: d.riskLevels['ปกติ'] || 0, color: '#10b981' },
+        { label: 'เล็กน้อย', value: d.riskLevels['เสี่ยงเล็กน้อย'] || 0, color: '#fbbf24' },
+        { label: 'ปานกลาง', value: d.riskLevels['เสี่ยงปานกลาง'] || 0, color: '#fb923c' },
+        { label: 'สูง', value: d.riskLevels['เสี่ยงสูง'] || 0, color: '#ef4444' },
+        { label: 'สูงมาก', value: d.riskLevels['เสี่ยงสูงมาก'] || 0, color: '#a855f7' }
+      ];
+      const max = Math.max(...levels.map(l => l.value), 1);
+      chartEl.innerHTML = levels.map(l => `
+        <div class="chart-bar" style="height:${Math.max(l.value / max * 160, 8)}px;background:${l.color}">
+          <div class="bar-value">${l.value}</div>
+          <div class="bar-label">${l.label}</div>
+        </div>
+      `).join('');
+
+      recentAssessmentsData = d.recentAssessments;
+      currentRecentPage = 1;
+      renderRecentTable();
+    }
+
+    function renderRecentTable() {
+      const tbody = document.getElementById('recent-table');
+      const pag = document.getElementById('recent-pagination');
+      if (!recentAssessmentsData || recentAssessmentsData.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text2);padding:32px">ยังไม่มีข้อมูลการประเมิน</td></tr>';
+        pag.innerHTML = ''; return;
+      }
+      const totalPages = Math.ceil(recentAssessmentsData.length / recentItemsPerPage);
+      const start = (currentRecentPage - 1) * recentItemsPerPage;
+      const data = recentAssessmentsData.slice(start, start + recentItemsPerPage);
+      tbody.innerHTML = data.map(r => `
+        <tr><td>${formatDate(r.date)}</td><td>${r.name}</td><td>${r.classroom}</td><td>${r.score}</td><td>${getBadge(r.riskLevel)}</td></tr>
+      `).join('');
+      if (totalPages > 1) {
+        pag.innerHTML = `
+          <button class="btn btn-outline" style="padding:4px 12px;font-size:13px" onclick="changeRecentPage(-1)" ${currentRecentPage === 1 ? 'disabled' : ''}>ก่อนหน้า</button>
+          <span style="font-size:13px">หน้า ${currentRecentPage} / ${totalPages}</span>
+          <button class="btn btn-outline" style="padding:4px 12px;font-size:13px" onclick="changeRecentPage(1)" ${currentRecentPage === totalPages ? 'disabled' : ''}>ถัดไป</button>
+        `;
+      } else pag.innerHTML = '';
+    }
+
+    function changeRecentPage(dir) { currentRecentPage += dir; renderRecentTable(); }
+
+    // ===== SUBMIT =====
+    async function submitAssessment() {
+      const name = document.getElementById('f-name').value.trim();
+      const cls = document.getElementById('f-class').value;
+      const num = document.getElementById('f-num').value;
+      const age = document.getElementById('f-age').value;
+      const gender = document.getElementById('f-gender').value;
+      const note = document.getElementById('f-note').value.trim();
+
+      if (!name || !cls || !num || !age || !gender) { showToast('กรุณากรอกข้อมูลนักเรียนให้ครบ', 'error'); return; }
+
+      const answers = [];
+      for (let i = 0; i < questions.length; i++) {
+        if (userAnswers[i] === undefined || userAnswers[i] === null) {
+          showToast(`กรุณาตอบข้อที่ ${i + 1}`, 'error');
+          currentQuestionIndex = i; renderQuestions(); return;
+        }
+        answers.push(userAnswers[i]);
+      }
+
+      const res = await apiCall('submitAssessment', {
+        studentName: name, classroom: cls, studentNumber: num,
+        age, gender, answers, note, assessor: currentUser?.fullName || ''
+      });
+
+      if (res.success) {
+        showToast(res.message, 'success');
+        fireConfetti();
+        showResultModal(res.result);
+        resetForm();
+      } else {
+        showToast(res.message, 'error');
+      }
+    }
+
+    function showResultModal(result) {
+      const modal = document.getElementById('result-modal');
+      modal.style.display = 'flex';
+      document.getElementById('res-score').textContent = result.totalScore;
+      const levelEl = document.getElementById('res-level');
+      levelEl.textContent = result.riskLevel;
+      levelEl.style.color = getRiskColor(result.riskLevel);
+      const advices = {
+        'ปกติ': '🎉 สุขภาพจิตอยู่ในเกณฑ์ดี ควรดูแลรักษาสุขภาพจิตต่อไป',
+        'เสี่ยงเล็กน้อย': '💛 มีความเสี่ยงเล็กน้อย ควรหมั่นสังเกตตัวเองและพูดคุยกับคนใกล้ชิด',
+        'เสี่ยงปานกลาง': '🧡 ควรเข้าพบครูแนะแนวหรือนักจิตวิทยาเพื่อปรึกษา',
+        'เสี่ยงสูง': '❤️ ควรเข้าพบผู้เชี่ยวชาญด้านสุขภาพจิตโดยเร็ว',
+        'เสี่ยงสูงมาก': '🚨 ต้องได้รับการดูแลจากผู้เชี่ยวชาญอย่างเร่งด่วน'
+      };
+      document.getElementById('res-advice').textContent = advices[result.riskLevel] || '';
+    }
+
+    function closeResultModal() { document.getElementById('result-modal').style.display = 'none'; }
+
+    function resetForm() {
+      ['f-name', 'f-num', 'f-age', 'f-note'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('f-class').selectedIndex = 0;
+      document.getElementById('f-gender').selectedIndex = 0;
+      userAnswers = []; currentQuestionIndex = 0; renderQuestions();
+    }
+
+    // ===== RESULTS =====
+    async function loadResults() {
+      const res = await apiCall('getResponses');
+      if (!res.success || !res.data || res.data.length === 0) { allResultsData = []; renderResultsTable(); return; }
+      allResultsData = res.data; renderResultsTable();
+    }
+
+    function applyResultsFilter() { renderResultsTable(); }
+
+    function renderResultsTable() {
+      const tbody = document.getElementById('results-table');
+      if (!allResultsData.length) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text2);padding:32px">ยังไม่มีข้อมูล</td></tr>'; return; }
+      const fName = document.getElementById('filter-name')?.value.toLowerCase() || '';
+      const fClass = document.getElementById('filter-class')?.value || '';
+      const fRisk = document.getElementById('filter-risk')?.value || '';
+      const filtered = allResultsData.filter(r => {
+        const matchName = r['ชื่อ-นามสกุลนักเรียน'].toLowerCase().includes(fName);
+        const matchClass = fClass === '' || r['ชั้นเรียน'] === fClass;
+        const matchRisk = fRisk === '' || r['ระดับความเสี่ยง'] === fRisk;
+        return matchName && matchClass && matchRisk;
+      });
+      if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text2);padding:32px">ไม่พบข้อมูลที่ค้นหา</td></tr>'; return; }
+      tbody.innerHTML = filtered.map((r, i) => `
+        <tr>
+          <td>${i + 1}</td><td>${formatDate(r['วันที่ประเมิน'])}</td><td>${r['ชื่อ-นามสกุลนักเรียน']}</td>
+          <td>${r['ชั้นเรียน']}</td><td>${r['เลขที่']}</td><td>${r['คะแนนรวม']}</td><td>${getBadge(r['ระดับความเสี่ยง'])}</td>
+        </tr>
+      `).join('');
+    }
+
+    // ===== HELPERS =====
+    function formatDate(d) {
+      if (!d) return '-';
+      try { return new Date(d).toLocaleDateString('th-TH', { day: '2-digit', month: 'short', year: '2-digit' }); }
+      catch { return d; }
+    }
+    function getRiskColor(level) {
+      return { 'ปกติ': '#10b981', 'เสี่ยงเล็กน้อย': '#fbbf24', 'เสี่ยงปานกลาง': '#fb923c', 'เสี่ยงสูง': '#ef4444', 'เสี่ยงสูงมาก': '#a855f7' }[level] || '#94a3b8';
+    }
+    function getBadge(level) {
+      const cls = { 'ปกติ': 'badge-green', 'เสี่ยงเล็กน้อย': 'badge-yellow', 'เสี่ยงปานกลาง': 'badge-orange', 'เสี่ยงสูง': 'badge-red', 'เสี่ยงสูงมาก': 'badge-purple' };
+      return `<span class="badge ${cls[level] || ''}">${level}</span>`;
+    }
+  </script>
+</body>
+
+</html>
