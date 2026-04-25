@@ -4,32 +4,35 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="ระบบประเมินสุขภาพจิตนักเรียน - แบบประเมินออนไลน์">
-  <title>🧠 ระบบประเมินสุขภาพจิตนักเรียน</title>
+  <title>🌈 MindCare — ประเมินสุขภาพจิต</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap');
-
-    * { margin: 0; padding: 0; box-sizing: border-box }
-
-    @keyframes pulse { 0%,100%{opacity:.5} 50%{opacity:1} }
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
     :root {
-      --primary: #6366f1;
-      --primary-dark: #4f46e5;
-      --primary-light: #a5b4fc;
-      --accent: #f59e0b;
-      --success: #10b981;
-      --danger: #ef4444;
-      --warning: #f59e0b;
-      --bg: #0f172a;
-      --bg2: #1e293b;
-      --bg3: #334155;
-      --card: rgba(30,41,59,.85);
-      --text: #f1f5f9;
-      --text2: #94a3b8;
-      --radius: 16px;
-      --shadow: 0 8px 32px rgba(0,0,0,.3);
-      --sidebar-w: 260px;
+      --pink: #ff6eb4;
+      --purple: #9b5de5;
+      --blue: #4ea8de;
+      --teal: #2ec4b6;
+      --yellow: #ffd166;
+      --orange: #ff9f43;
+      --green: #06d6a0;
+      --red: #ef476f;
+      --bg: #fff8ff;
+      --bg2: #f0e6ff;
+      --card: #ffffff;
+      --text: #2d1b69;
+      --text2: #7c6fa0;
+      --border: #e0d0ff;
+      --radius: 20px;
+      --shadow: 0 8px 32px rgba(155, 93, 229, .15);
     }
 
     body {
@@ -43,521 +46,1411 @@
     body::before {
       content: '';
       position: fixed;
-      top: -50%; left: -50%;
-      width: 200%; height: 200%;
-      background: radial-gradient(circle at 30% 20%, rgba(99,102,241,.15), transparent 50%),
-                  radial-gradient(circle at 70% 80%, rgba(245,158,11,.1), transparent 50%);
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 10% 0%, rgba(255, 110, 180, .18) 0%, transparent 55%),
+        radial-gradient(ellipse at 90% 100%, rgba(78, 168, 222, .18) 0%, transparent 55%),
+        radial-gradient(ellipse at 50% 50%, rgba(155, 93, 229, .08) 0%, transparent 70%);
       z-index: 0;
-      animation: bgMove 20s ease-in-out infinite alternate;
+      pointer-events: none;
     }
-    @keyframes bgMove { to { transform: translate(5%,3%) rotate(2deg) } }
 
     /* ===== TOAST ===== */
-    .toast-container { position: fixed; top: 20px; right: 20px; z-index: 10000; display: flex; flex-direction: column; gap: 10px }
-    .toast { padding: 14px 24px; border-radius: 12px; color: #fff; font-weight: 500; animation: slideIn .4s ease; display: flex; align-items: center; gap: 10px; backdrop-filter: blur(10px); box-shadow: var(--shadow); max-width: 380px }
-    .toast.success { background: linear-gradient(135deg,#10b981,#059669) }
-    .toast.error   { background: linear-gradient(135deg,#ef4444,#dc2626) }
-    .toast.info    { background: linear-gradient(135deg,#6366f1,#4f46e5) }
-    @keyframes slideIn { from{transform:translateX(100%);opacity:0} to{transform:translateX(0);opacity:1} }
-    @keyframes slideOut { from{opacity:1} to{transform:translateX(100%);opacity:0} }
-
-    /* ===== CONFETTI ===== */
-    .confetti-piece { position: fixed; width: 10px; height: 10px; top: -10px; z-index: 9999; animation: confettiFall 3s ease-in forwards }
-    @keyframes confettiFall { to { top: 110vh; transform: rotate(720deg) } }
-
-    /* ===== LOADER ===== */
-    .loader-overlay { position: fixed; inset: 0; background: rgba(15,23,42,.8); display: flex; align-items: center; justify-content: center; z-index: 9998; backdrop-filter: blur(4px) }
-    .loader { width: 48px; height: 48px; border: 4px solid var(--bg3); border-top-color: var(--primary); border-radius: 50%; animation: spin .8s linear infinite }
-    @keyframes spin { to { transform: rotate(360deg) } }
-
-    /* ===== LAYOUT ===== */
-    .app-layout { display: flex; min-height: 100vh; position: relative; z-index: 1 }
-
-    /* ===== SIDEBAR ===== */
-    .sidebar {
-      width: var(--sidebar-w);
-      background: rgba(15,23,42,.95);
-      backdrop-filter: blur(24px);
-      border-right: 1px solid rgba(255,255,255,.08);
+    .toast-container {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 10000;
       display: flex;
       flex-direction: column;
-      position: fixed;
-      left: 0; top: 0; bottom: 0;
-      z-index: 200;
-      transform: translateX(-100%);
-      transition: transform .35s cubic-bezier(.4,0,.2,1);
-      overflow: hidden;
+      gap: 8px;
     }
-    .sidebar.open { transform: translateX(0) }
 
-    .sidebar-header {
-      padding: 24px 20px 16px;
-      border-bottom: 1px solid rgba(255,255,255,.07);
+    .toast {
+      padding: 12px 20px;
+      border-radius: 14px;
+      font-weight: 600;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      animation: slideIn .35s ease;
+      box-shadow: 0 6px 24px rgba(0, 0, 0, .12);
+      max-width: 340px;
+    }
+
+    .toast.success {
+      background: linear-gradient(135deg, #06d6a0, #00b09b);
+      color: #fff;
+    }
+
+    .toast.error {
+      background: linear-gradient(135deg, #ef476f, #d62246);
+      color: #fff;
+    }
+
+    .toast.info {
+      background: linear-gradient(135deg, #9b5de5, #7b2fbe);
+      color: #fff;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(110%);
+        opacity: 0
+      }
+
+      to {
+        transform: translateX(0);
+        opacity: 1
+      }
+    }
+
+    @keyframes slideOut {
+      to {
+        transform: translateX(110%);
+        opacity: 0
+      }
+    }
+
+    /* ===== LOADER ===== */
+    .loader-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(255, 248, 255, .7);
+      backdrop-filter: blur(6px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9998;
+      gap: 16px;
+    }
+
+    .loader-emoji {
+      font-size: 52px;
+      animation: bounce 0.7s ease-in-out infinite alternate;
+    }
+
+    @keyframes bounce {
+      to {
+        transform: translateY(-14px) scale(1.1);
+      }
+    }
+
+    .loader-text {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--purple);
+    }
+
+    /* ===== CONFETTI ===== */
+    .confetti-piece {
+      position: fixed;
+      top: -10px;
+      z-index: 9999;
+      animation: confettiFall 3s ease-in forwards;
+    }
+
+    @keyframes confettiFall {
+      to {
+        top: 110vh;
+        transform: rotate(720deg);
+      }
+    }
+
+    /* ===== NAVBAR ===== */
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(255, 255, 255, .85);
+      backdrop-filter: blur(20px);
+      border-bottom: 2px solid var(--border);
+      padding: 0 24px;
+      height: 62px;
       display: flex;
       align-items: center;
       justify-content: space-between;
     }
-    .sidebar-brand {
-      font-size: 17px;
-      font-weight: 700;
+
+    .brand {
+      font-size: 19px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--purple);
+    }
+
+    .brand-dot {
+      color: var(--pink);
+    }
+
+    .nav-right {
       display: flex;
       align-items: center;
       gap: 8px;
     }
-    .sidebar-brand span {
-      background: linear-gradient(135deg, var(--primary-light), var(--accent));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    .sidebar-close {
-      background: none; border: none; color: var(--text2); cursor: pointer;
-      width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center;
-      font-size: 18px; transition: all .2s;
-    }
-    .sidebar-close:hover { background: rgba(255,255,255,.08); color: var(--text) }
 
-    /* User badge inside sidebar */
+    /* ===== BUTTONS ===== */
+    .btn {
+      padding: 10px 22px;
+      border: none;
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      transition: all .25s;
+      outline: none;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, .15);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--purple), #7b2fbe);
+      color: #fff;
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, var(--green), #04b589);
+      color: #fff;
+    }
+
+    .btn-pink {
+      background: linear-gradient(135deg, var(--pink), #e0409a);
+      color: #fff;
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 2px solid var(--border);
+      color: var(--text2);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--purple);
+      color: var(--purple);
+    }
+
+    .btn-block {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .btn-lg {
+      padding: 16px 32px;
+      font-size: 16px;
+      border-radius: 18px;
+    }
+
+    .btn-admin-toggle {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 14px;
+      border: 2px solid rgba(155, 93, 229, .35);
+      background: rgba(155, 93, 229, .1);
+      color: var(--purple);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all .25s;
+    }
+
+    .btn-admin-toggle:hover {
+      background: rgba(155, 93, 229, .2);
+      border-color: var(--purple);
+    }
+
+    /* ===== SIDEBAR ===== */
+    .sidebar {
+      width: 270px;
+      background: #fff;
+      border-right: 2px solid var(--border);
+      box-shadow: 4px 0 24px rgba(155, 93, 229, .12);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      z-index: 200;
+      transform: translateX(-100%);
+      transition: transform .35s cubic-bezier(.4, 0, .2, 1);
+    }
+
+    .sidebar.open {
+      transform: translateX(0);
+    }
+
+    .sidebar-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(45, 27, 105, .3);
+      backdrop-filter: blur(2px);
+      z-index: 199;
+    }
+
+    .sidebar-backdrop.visible {
+      display: block;
+    }
+
+    .sidebar-header {
+      padding: 20px;
+      border-bottom: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: linear-gradient(135deg, rgba(155, 93, 229, .1), rgba(255, 110, 180, .08));
+    }
+
+    .sidebar-brand {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--purple);
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .sidebar-close {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      background: rgba(155, 93, 229, .1);
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      color: var(--purple);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all .2s;
+    }
+
+    .sidebar-close:hover {
+      background: rgba(155, 93, 229, .2);
+    }
+
     .sidebar-user {
-      margin: 16px 20px;
-      padding: 12px 16px;
-      background: rgba(99,102,241,.1);
-      border: 1px solid rgba(99,102,241,.25);
-      border-radius: 12px;
+      margin: 16px;
+      padding: 14px 16px;
+      background: linear-gradient(135deg, rgba(155, 93, 229, .1), rgba(255, 110, 180, .08));
+      border: 1.5px solid var(--border);
+      border-radius: 16px;
       display: flex;
       align-items: center;
       gap: 12px;
     }
-    .sidebar-user .avatar {
-      width: 36px; height: 36px; border-radius: 50%;
-      background: linear-gradient(135deg, var(--primary), var(--accent));
-      display: flex; align-items: center; justify-content: center;
-      font-weight: 700; font-size: 14px; flex-shrink: 0;
-    }
-    .sidebar-user .user-name { font-size: 14px; font-weight: 600; }
-    .sidebar-user .user-role { font-size: 12px; color: var(--text2); margin-top: 2px; }
 
-    /* Nav menu */
-    .sidebar-nav { padding: 8px 12px; flex: 1; overflow-y: auto; }
-    .sidebar-section-label {
-      font-size: 11px;
-      font-weight: 600;
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--purple), var(--pink));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 16px;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .user-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .user-role {
+      font-size: 12px;
       color: var(--text2);
-      letter-spacing: .08em;
+      margin-top: 2px;
+    }
+
+    .sidebar-nav {
+      padding: 8px 12px;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .sidebar-section-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text2);
+      letter-spacing: .1em;
       text-transform: uppercase;
       padding: 12px 8px 6px;
     }
+
     .sidebar-nav-btn {
       width: 100%;
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 11px 12px;
+      padding: 12px 14px;
       border: none;
-      border-radius: 10px;
+      border-radius: 14px;
       background: transparent;
       color: var(--text2);
       font-family: inherit;
       font-size: 14px;
-      font-weight: 500;
+      font-weight: 600;
       cursor: pointer;
       transition: all .2s;
       text-align: left;
-      margin-bottom: 2px;
+      margin-bottom: 3px;
     }
-    .sidebar-nav-btn .nav-icon { font-size: 18px; flex-shrink: 0; width: 24px; text-align: center; }
-    .sidebar-nav-btn:hover { background: rgba(255,255,255,.07); color: var(--text); }
+
+    .sidebar-nav-btn:hover {
+      background: rgba(155, 93, 229, .08);
+      color: var(--purple);
+    }
+
     .sidebar-nav-btn.active {
-      background: rgba(99,102,241,.18);
-      color: var(--primary-light);
-      font-weight: 600;
+      background: rgba(155, 93, 229, .15);
+      color: var(--purple);
     }
-    .sidebar-nav-btn.active .nav-icon { filter: drop-shadow(0 0 6px rgba(99,102,241,.6)); }
+
+    .nav-icon {
+      font-size: 18px;
+      width: 24px;
+      text-align: center;
+    }
 
     .sidebar-footer {
-      padding: 16px 12px;
-      border-top: 1px solid rgba(255,255,255,.07);
+      padding: 14px 12px;
+      border-top: 1.5px solid var(--border);
     }
+
     .sidebar-logout-btn {
       width: 100%;
       display: flex;
       align-items: center;
-      gap: 12px;
-      padding: 11px 12px;
-      border: 1px solid rgba(239,68,68,.3);
-      border-radius: 10px;
-      background: rgba(239,68,68,.08);
-      color: #f87171;
-      font-family: inherit;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all .2s;
-    }
-    .sidebar-logout-btn:hover { background: rgba(239,68,68,.18); border-color: rgba(239,68,68,.5); }
-
-    /* Overlay backdrop */
-    .sidebar-backdrop {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,.5);
-      backdrop-filter: blur(2px);
-      z-index: 199;
-      opacity: 0;
-      transition: opacity .3s;
-    }
-    .sidebar-backdrop.visible { display: block; opacity: 1; }
-
-    /* ===== NAVBAR ===== */
-    .navbar {
-      background: var(--card);
-      backdrop-filter: blur(20px);
-      border-bottom: 1px solid rgba(255,255,255,.08);
-      padding: 0 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      height: 64px;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-    .navbar .brand { font-size: 18px; font-weight: 700; display: flex; align-items: center; gap: 10px }
-    .navbar .brand span {
-      background: linear-gradient(135deg, var(--primary-light), var(--accent));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    /* Admin toggle button in navbar */
-    .btn-admin-toggle {
-      display: none; /* hidden until logged in */
-      align-items: center;
-      gap: 8px;
-      padding: 8px 16px;
-      border: 1px solid rgba(99,102,241,.4);
-      border-radius: 10px;
-      background: rgba(99,102,241,.12);
-      color: var(--primary-light);
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1.5px solid rgba(239, 71, 111, .25);
+      background: rgba(239, 71, 111, .07);
+      color: #ef476f;
       font-family: inherit;
       font-size: 14px;
       font-weight: 600;
       cursor: pointer;
-      transition: all .25s;
-    }
-    .btn-admin-toggle:hover { background: rgba(99,102,241,.22); border-color: rgba(99,102,241,.7); }
-    .btn-admin-toggle .hamburger {
-      display: flex; flex-direction: column; gap: 4px; width: 18px;
-    }
-    .btn-admin-toggle .hamburger span {
-      display: block; height: 2px; width: 100%; background: currentColor;
-      border-radius: 2px; transition: all .3s;
+      transition: all .2s;
     }
 
-    .navbar .nav-right { display: flex; align-items: center; gap: 10px; }
-
-    /* ===== PAGES ===== */
-    .main-content { flex: 1; min-height: 100vh; }
-
-    .page { display: none; animation: fadeIn .5s ease }
-    .page.active { display: block }
-    @keyframes fadeIn { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
-
-    /* ===== LOGIN ===== */
-    .login-wrapper { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px }
-    .login-card {
-      background: var(--card); backdrop-filter: blur(20px);
-      border: 1px solid rgba(255,255,255,.1); border-radius: 24px;
-      padding: 48px 40px; width: 100%; max-width: 440px; box-shadow: var(--shadow);
+    .sidebar-logout-btn:hover {
+      background: rgba(239, 71, 111, .15);
+      border-color: #ef476f;
     }
-    .login-card h1 { font-size: 28px; font-weight: 700; text-align: center; margin-bottom: 8px; background: linear-gradient(135deg,var(--primary-light),var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent }
-    .login-card .subtitle { text-align: center; color: var(--text2); margin-bottom: 32px; font-size: 14px }
-    .login-icon { text-align: center; font-size: 56px; margin-bottom: 16px; animation: float 3s ease-in-out infinite }
-    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+
+    /* ===== LAYOUT ===== */
+    .main-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .page {
+      display: none;
+      animation: fadeIn .4s ease;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(16px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .container {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 24px 20px;
+    }
+
+    .container-wide {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px 20px;
+    }
+
+    .page-title {
+      font-size: 22px;
+      font-weight: 800;
+      margin-bottom: 24px;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* ===== CARD ===== */
+    .card {
+      background: var(--card);
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: var(--shadow);
+      margin-bottom: 20px;
+    }
+
+    .card-title {
+      font-size: 17px;
+      font-weight: 700;
+      margin-bottom: 18px;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
 
     /* ===== FORM ===== */
-    .form-group { margin-bottom: 20px }
-    .form-group label { display: block; font-weight: 500; margin-bottom: 6px; font-size: 14px; color: var(--text2) }
-    .form-group input, .form-group select, .form-group textarea {
-      width: 100%; padding: 12px 16px; background: var(--bg);
-      border: 2px solid var(--bg3); border-radius: 12px; color: var(--text);
-      font-size: 15px; font-family: inherit; transition: all .3s;
+    .form-group {
+      margin-bottom: 18px;
     }
-    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-      outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(99,102,241,.2)
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text2);
+      margin-bottom: 6px;
     }
-    .form-group select option { background: var(--bg2) }
 
-    .btn { padding: 12px 28px; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all .3s; font-family: inherit; display: inline-flex; align-items: center; gap: 8px }
-    .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,.3) }
-    .btn:active { transform: translateY(0) }
-    .btn-primary { background: linear-gradient(135deg,var(--primary),var(--primary-dark)); color: #fff }
-    .btn-success { background: linear-gradient(135deg,var(--success),#059669); color: #fff }
-    .btn-danger  { background: linear-gradient(135deg,var(--danger),#dc2626); color: #fff }
-    .btn-outline { background: transparent; border: 2px solid var(--bg3); color: var(--text) }
-    .btn-outline:hover { border-color: var(--primary); color: var(--primary-light) }
-    .btn-block { width: 100%; justify-content: center }
-    .btn-lg { padding: 16px 32px; font-size: 17px }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px 16px;
+      background: var(--bg);
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      color: var(--text);
+      font-size: 15px;
+      font-family: inherit;
+      transition: all .25s;
+    }
 
-    /* ===== CONTAINER ===== */
-    .container { max-width: 1200px; margin: 0 auto; padding: 24px }
-    .page-title { font-size: 24px; font-weight: 700; margin-bottom: 24px; display: flex; align-items: center; gap: 12px }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--purple);
+      box-shadow: 0 0 0 4px rgba(155, 93, 229, .15);
+      background: #fff;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    /* ===== LOGIN ===== */
+    .login-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: calc(100vh - 62px);
+      padding: 24px;
+    }
+
+    .login-card {
+      background: #fff;
+      border: 2px solid var(--border);
+      border-radius: 28px;
+      padding: 48px 40px;
+      width: 100%;
+      max-width: 440px;
+      box-shadow: 0 16px 60px rgba(155, 93, 229, .2);
+      text-align: center;
+    }
+
+    .login-emoji {
+      font-size: 64px;
+      margin-bottom: 12px;
+      animation: float 3s ease-in-out infinite;
+      display: block;
+    }
+
+    @keyframes float {
+
+      0%,
+      100% {
+        transform: translateY(0)
+      }
+
+      50% {
+        transform: translateY(-10px)
+      }
+    }
+
+    .login-card h1 {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--purple);
+      margin-bottom: 6px;
+    }
+
+    .login-card .subtitle {
+      color: var(--text2);
+      font-size: 14px;
+      margin-bottom: 30px;
+    }
+
+    /* ===== HERO BANNER ===== */
+    .hero-banner {
+      background: linear-gradient(135deg, var(--purple), var(--pink));
+      border-radius: var(--radius);
+      padding: 32px 28px;
+      margin-bottom: 24px;
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-banner::after {
+      content: '🌈✨💖🎯🧠';
+      position: absolute;
+      right: -20px;
+      top: -10px;
+      font-size: 80px;
+      opacity: .15;
+      letter-spacing: -8px;
+      transform: rotate(15deg);
+    }
+
+    .hero-banner h2 {
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .hero-banner p {
+      font-size: 14px;
+      opacity: .9;
+    }
 
     /* ===== STATS ===== */
-    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 16px; margin-bottom: 32px }
-    .stat-card { background: var(--card); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,.08); border-radius: var(--radius); padding: 24px; transition: all .3s }
-    .stat-card:hover { transform: translateY(-4px); box-shadow: var(--shadow) }
-    .stat-card .stat-icon { font-size: 32px; margin-bottom: 12px }
-    .stat-card .stat-value { font-size: 32px; font-weight: 700 }
-    .stat-card .stat-label { color: var(--text2); font-size: 13px; margin-top: 4px }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 14px;
+      margin-bottom: 24px;
+    }
 
-    .card { background: var(--card); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,.08); border-radius: var(--radius); padding: 24px; margin-bottom: 20px }
-    .card-title { font-size: 18px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px }
+    .stat-card {
+      background: #fff;
+      border: 2px solid var(--border);
+      border-radius: 18px;
+      padding: 20px;
+      text-align: center;
+      transition: all .3s;
+      box-shadow: 0 4px 16px rgba(155, 93, 229, .08);
+    }
 
-    /* ===== TABLE ===== */
-    .table-wrap { overflow-x: auto }
-    table { width: 100%; border-collapse: collapse }
-    th,td { padding: 12px 16px; text-align: left; font-size: 14px; white-space: nowrap }
-    th { color: var(--text2); font-weight: 600; border-bottom: 2px solid var(--bg3) }
-    td { border-bottom: 1px solid rgba(255,255,255,.05) }
-    tr:hover td { background: rgba(99,102,241,.05) }
+    .stat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow);
+    }
 
-    .badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; display: inline-block }
-    .badge-green  { background: rgba(16,185,129,.15); color: #34d399 }
-    .badge-yellow { background: rgba(245,158,11,.15);  color: #fbbf24 }
-    .badge-orange { background: rgba(249,115,22,.15);  color: #fb923c }
-    .badge-red    { background: rgba(239,68,68,.15);   color: #f87171 }
-    .badge-purple { background: rgba(139,92,246,.15);  color: #a78bfa }
+    .stat-icon {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
 
-    /* ===== QUESTIONS ===== */
-    .question-card { background: var(--card); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,.08); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; transition: all .3s }
-    .question-card:hover { border-color: rgba(99,102,241,.3) }
-    .question-card .q-number { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg,var(--primary),var(--primary-dark)); color: #fff; font-weight: 700; font-size: 14px; margin-right: 12px }
-    .question-card .q-text { font-weight: 500; margin-bottom: 16px; display: flex; align-items: center }
-    .radio-group { display: flex; flex-wrap: wrap; gap: 8px }
-    .radio-option { position: relative }
-    .radio-option input { display: none }
-    .radio-option label { display: block; padding: 10px 20px; border-radius: 10px; border: 2px solid var(--bg3); cursor: pointer; font-size: 14px; transition: all .3s; text-align: center; min-width: 60px }
-    .radio-option input:checked+label { border-color: var(--primary); background: rgba(99,102,241,.15); color: var(--primary-light) }
+    .stat-value {
+      font-size: 34px;
+      font-weight: 800;
+      color: var(--purple);
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--text2);
+      font-weight: 600;
+      margin-top: 3px;
+    }
 
     /* ===== PROGRESS ===== */
-    .progress-bar { height: 8px; background: var(--bg3); border-radius: 8px; overflow: hidden; margin-bottom: 8px }
-    .progress-bar .fill { height: 100%; background: linear-gradient(90deg,var(--primary),var(--accent)); border-radius: 8px; transition: width .5s ease }
-    .progress-text { font-size: 13px; color: var(--text2); text-align: right }
+    .progress-wrap {
+      margin-bottom: 6px;
+    }
 
-    /* ===== RESULT CIRCLE ===== */
-    .result-circle { width: 180px; height: 180px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 24px; position: relative }
-    .result-circle::before { content: ''; position: absolute; inset: -4px; border-radius: 50%; padding: 4px; background: conic-gradient(var(--primary),var(--accent),var(--primary)); -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; animation: spin 4s linear infinite }
-    .result-circle .score { font-size: 48px; font-weight: 700 }
-    .result-circle .score-label { font-size: 13px; color: var(--text2) }
+    .progress-bar {
+      height: 10px;
+      background: var(--bg2);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .progress-bar .fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--purple), var(--pink));
+      border-radius: 10px;
+      transition: width .5s ease;
+    }
+
+    .progress-text {
+      font-size: 12px;
+      color: var(--text2);
+      text-align: right;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+
+    /* ===== QUESTION CARD ===== */
+    .question-card {
+      background: #fff;
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 24px;
+      box-shadow: 0 4px 20px rgba(155, 93, 229, .1);
+    }
+
+    .q-number-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--purple), var(--pink));
+      color: #fff;
+      font-weight: 800;
+      font-size: 15px;
+      flex-shrink: 0;
+      margin-right: 10px;
+    }
+
+    .q-text {
+      display: flex;
+      align-items: center;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+
+    /* ===== EMOJI RADIO BUTTONS ===== */
+    .emoji-group {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    .emoji-option {
+      position: relative;
+    }
+
+    .emoji-option input {
+      display: none;
+    }
+
+    .emoji-option label {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 12px 6px;
+      border-radius: 18px;
+      border: 2.5px solid var(--border);
+      cursor: pointer;
+      transition: all .25s;
+      background: var(--bg);
+      user-select: none;
+    }
+
+    .emoji-option label .emo {
+      font-size: 30px;
+      line-height: 1;
+      transition: transform .2s;
+    }
+
+    .emoji-option label .lbl {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text2);
+      text-align: center;
+      line-height: 1.3;
+    }
+
+    .emoji-option label:hover {
+      border-color: var(--purple);
+      background: rgba(155, 93, 229, .07);
+    }
+
+    .emoji-option label:hover .emo {
+      transform: scale(1.2);
+    }
+
+    .emoji-option input:checked+label {
+      border-color: var(--purple);
+      background: linear-gradient(135deg, rgba(155, 93, 229, .15), rgba(255, 110, 180, .1));
+      box-shadow: 0 4px 16px rgba(155, 93, 229, .2);
+    }
+
+    .emoji-option input:checked+label .emo {
+      transform: scale(1.25);
+    }
+
+    .emoji-option input:checked+label .lbl {
+      color: var(--purple);
+    }
+
+    /* ===== NAV ARROWS ===== */
+    .q-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 4px;
+    }
+
+    /* ===== BADGE ===== */
+    .badge {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      display: inline-block;
+    }
+
+    .badge-green {
+      background: rgba(6, 214, 160, .15);
+      color: #029c75;
+    }
+
+    .badge-yellow {
+      background: rgba(255, 209, 102, .25);
+      color: #c27d00;
+    }
+
+    .badge-orange {
+      background: rgba(255, 159, 67, .2);
+      color: #c96a00;
+    }
+
+    .badge-red {
+      background: rgba(239, 71, 111, .15);
+      color: #c62050;
+    }
+
+    .badge-purple {
+      background: rgba(155, 93, 229, .15);
+      color: #7b2fbe;
+    }
+
+    /* ===== TABLE ===== */
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 12px 16px;
+      text-align: left;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    th {
+      color: var(--text2);
+      font-weight: 700;
+      border-bottom: 2px solid var(--border);
+    }
+
+    td {
+      border-bottom: 1.5px solid rgba(155, 93, 229, .07);
+    }
+
+    tr:hover td {
+      background: rgba(155, 93, 229, .04);
+    }
 
     /* ===== CHART ===== */
-    .chart-bars { display: flex; align-items: flex-end; gap: 12px; height: 200px; padding-top: 20px }
-    .chart-bar { flex: 1; border-radius: 8px 8px 0 0; position: relative; transition: height .8s ease; min-width: 40px }
-    .chart-bar .bar-label { position: absolute; bottom: -24px; left: 50%; transform: translateX(-50%); font-size: 11px; color: var(--text2); white-space: nowrap }
-    .chart-bar .bar-value { position: absolute; top: -24px; left: 50%; transform: translateX(-50%); font-size: 13px; font-weight: 600 }
+    .chart-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 14px;
+      height: 200px;
+      padding-top: 28px;
+    }
+
+    .chart-bar {
+      flex: 1;
+      border-radius: 12px 12px 0 0;
+      position: relative;
+      transition: height .8s ease;
+      min-width: 44px;
+    }
+
+    .bar-value {
+      position: absolute;
+      top: -26px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .bar-label {
+      position: absolute;
+      bottom: -26px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 11px;
+      color: var(--text2);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    /* ===== RESULT MODAL ===== */
+    .result-modal-bg {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(45, 27, 105, .5);
+      backdrop-filter: blur(8px);
+      z-index: 9000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .result-modal-box {
+      background: #fff;
+      border-radius: 28px;
+      padding: 40px 32px;
+      max-width: 480px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 24px 80px rgba(155, 93, 229, .3);
+      animation: popIn .35s cubic-bezier(.4, 0, .2, 1);
+    }
+
+    @keyframes popIn {
+      from {
+        transform: scale(.85);
+        opacity: 0
+      }
+
+      to {
+        transform: scale(1);
+        opacity: 1
+      }
+    }
+
+    .result-emoji {
+      font-size: 72px;
+      margin-bottom: 12px;
+      display: block;
+      animation: float 2s ease-in-out infinite;
+    }
+
+    .result-score-big {
+      font-size: 52px;
+      font-weight: 800;
+      color: var(--purple);
+      line-height: 1;
+    }
+
+    .result-score-sub {
+      font-size: 13px;
+      color: var(--text2);
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    .result-level {
+      font-size: 22px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .result-advice {
+      font-size: 14px;
+      color: var(--text2);
+      font-weight: 600;
+      margin-bottom: 28px;
+      line-height: 1.6;
+    }
+
+    /* ===== DETAIL MODAL ===== */
+    .detail-modal-bg {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(45, 27, 105, .5);
+      backdrop-filter: blur(8px);
+      z-index: 9100;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .detail-modal-box {
+      background: #fff;
+      border-radius: 28px;
+      padding: 32px 28px;
+      max-width: 480px;
+      width: 100%;
+      margin: auto;
+      box-shadow: 0 24px 80px rgba(155, 93, 229, .3);
+      animation: popIn .35s cubic-bezier(.4, 0, .2, 1);
+      position: relative;
+    }
+
+    .detail-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid var(--border);
+    }
+
+    .detail-modal-title {
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--purple);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .detail-modal-close {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: rgba(155, 93, 229, .1);
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      color: var(--purple);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all .2s;
+      flex-shrink: 0;
+    }
+
+    .detail-modal-close:hover {
+      background: rgba(155, 93, 229, .2);
+    }
+
+    .detail-row {
+      display: flex;
+      flex-direction: column;
+      padding: 11px 0;
+      border-bottom: 1.5px solid rgba(155, 93, 229, .07);
+    }
+
+    .detail-row:last-of-type {
+      border-bottom: none;
+    }
+
+    .detail-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text2);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: 3px;
+    }
+
+    .detail-value {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    .detail-value.score-highlight {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--purple);
+    }
+
+    .detail-note {
+      background: var(--bg2);
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 14px;
+      color: var(--text2);
+      font-weight: 500;
+      line-height: 1.6;
+      min-height: 44px;
+    }
+
+    tr.clickable-row {
+      cursor: pointer;
+    }
+
+    tr.clickable-row:hover td {
+      background: rgba(155, 93, 229, .08) !important;
+    }
+
+    /* ===== SKELETON ===== */
+    .skeleton {
+      background: linear-gradient(90deg, var(--bg2) 25%, rgba(255, 255, 255, .7) 50%, var(--bg2) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 10px;
+    }
+
+    @keyframes shimmer {
+      to {
+        background-position: -200% 0;
+      }
+    }
 
     /* ===== RESPONSIVE ===== */
-    @media(max-width:768px) {
-      .navbar { padding: 0 16px }
-      .stats-grid { grid-template-columns: 1fr 1fr }
-      .login-card { padding: 32px 24px }
-      .container { padding: 16px }
-      .radio-group { flex-direction: column }
+    @media (max-width: 600px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .emoji-group {
+        grid-template-columns: repeat(5, 1fr);
+        gap: 6px;
+      }
+
+      .emoji-option label {
+        padding: 8px 4px;
+      }
+
+      .emoji-option label .emo {
+        font-size: 24px;
+      }
+
+      .emoji-option label .lbl {
+        font-size: 10px;
+      }
+
+      .container,
+      .container-wide {
+        padding: 16px;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .login-card {
+        padding: 32px 22px;
+      }
     }
-    @media(max-width:480px) {
-      .stats-grid { grid-template-columns: 1fr }
+
+    @media (max-width: 400px) {
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
 
 <body>
-  <div id="toast-container" class="toast-container"></div>
-  <div id="loader" class="loader-overlay" style="display:none"><div class="loader"></div></div>
 
-  <!-- ===== SIDEBAR BACKDROP ===== -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <div id="loader" class="loader-overlay" style="display:none">
+    <div class="loader-emoji">🌟</div>
+    <div class="loader-text">กำลังโหลด...</div>
+  </div>
+
   <div id="sidebar-backdrop" class="sidebar-backdrop" onclick="closeSidebar()"></div>
 
-  <!-- ===== SIDEBAR ===== -->
+  <!-- SIDEBAR -->
   <aside id="sidebar" class="sidebar">
     <div class="sidebar-header">
-      <div class="sidebar-brand">🧠 <span>MindCare</span></div>
-      <button class="sidebar-close" onclick="closeSidebar()" title="ปิด">✕</button>
+      <div class="sidebar-brand">🌈 <span>MindCare</span></div>
+      <button class="sidebar-close" onclick="closeSidebar()">✕</button>
     </div>
-
-    <div class="sidebar-user" id="sidebar-user-info">
+    <div class="sidebar-user">
       <div class="avatar" id="sidebar-avatar">A</div>
       <div>
         <div class="user-name" id="sidebar-username">Admin</div>
-        <div class="user-role">ผู้ดูแลระบบ</div>
+        <div class="user-role">👑 ผู้ดูแลระบบ</div>
       </div>
     </div>
-
     <nav class="sidebar-nav">
       <div class="sidebar-section-label">เมนูหลัก</div>
-
-      <button class="sidebar-nav-btn" id="snav-assess" onclick="sidebarNav('assess', this)">
+      <button class="sidebar-nav-btn" id="snav-assess" onclick="sidebarNav('assess',this)">
         <span class="nav-icon">📝</span> ทำแบบประเมิน
       </button>
-
       <div class="sidebar-section-label">แอดมิน</div>
-
-      <button class="sidebar-nav-btn" id="snav-dashboard" onclick="sidebarNav('dashboard', this)">
+      <button class="sidebar-nav-btn" id="snav-dashboard" onclick="sidebarNav('dashboard',this)">
         <span class="nav-icon">📊</span> แดชบอร์ดภาพรวม
       </button>
-
-      <button class="sidebar-nav-btn" id="snav-results" onclick="sidebarNav('results', this)">
+      <button class="sidebar-nav-btn" id="snav-results" onclick="sidebarNav('results',this)">
         <span class="nav-icon">📋</span> ผลการประเมินทั้งหมด
       </button>
     </nav>
-
     <div class="sidebar-footer">
-      <button class="sidebar-logout-btn" onclick="doLogout()">
-        <span>🚪</span> ออกจากระบบ
-      </button>
+      <button class="sidebar-logout-btn" onclick="doLogout()">🚪 ออกจากระบบ</button>
     </div>
   </aside>
 
-  <!-- ===== NAVBAR ===== -->
-  <nav id="navbar" class="navbar">
-    <div class="brand">🧠 <span>MindCare</span></div>
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="brand">🌈 <span class="brand-dot">Mind</span>Care</div>
     <div class="nav-right">
-      <!-- Admin toggle (shown when logged in) -->
       <button class="btn-admin-toggle" id="btn-admin-toggle" onclick="toggleSidebar()">
-        <div class="hamburger">
-          <span></span><span></span><span></span>
-        </div>
-        เมนูแอดมิน
+        ☰ เมนูแอดมิน
       </button>
-      <!-- Login button (shown when not logged in) -->
-      <button class="btn btn-outline" id="btn-login-nav" onclick="showPage('login', null)"
-        style="padding:8px 16px;font-size:13px">สำหรับผู้ดูแลระบบ</button>
+      <button class="btn btn-outline" id="btn-login-nav" onclick="showPage('login',null)"
+        style="padding:8px 16px;font-size:13px">🔒 สำหรับผู้ดูแล</button>
     </div>
   </nav>
 
-  <!-- ===== MAIN WRAPPER ===== -->
+  <!-- MAIN -->
   <div class="main-content">
 
-    <!-- ===== LOGIN PAGE ===== -->
+    <!-- LOGIN -->
     <div id="page-login" class="page">
       <div class="login-wrapper">
         <div class="login-card">
-          <div class="login-icon">🧠</div>
-          <h1>ระบบประเมินสุขภาพจิต</h1>
-          <p class="subtitle">Mental Health Assessment System</p>
-          <div class="form-group">
+          <span class="login-emoji">🔐</span>
+          <h1>เข้าสู่ระบบ</h1>
+          <p class="subtitle">สำหรับผู้ดูแลระบบและครูแนะแนว</p>
+          <div class="form-group" style="text-align:left">
             <label for="login-user">👤 ชื่อผู้ใช้</label>
             <input type="text" id="login-user" placeholder="กรอกชื่อผู้ใช้" autocomplete="username">
           </div>
-          <div class="form-group">
-            <label for="login-pass">🔒 รหัสผ่าน</label>
+          <div class="form-group" style="text-align:left">
+            <label for="login-pass">🔑 รหัสผ่าน</label>
             <input type="password" id="login-pass" placeholder="กรอกรหัสผ่าน" autocomplete="current-password">
           </div>
-          <button class="btn btn-primary btn-block btn-lg" onclick="doLogin()">เข้าสู่ระบบ</button>
-          <p style="text-align:center;margin-top:20px;font-size:13px;color:var(--text2)">💡 กรุณากรอกข้อมูลให้ครบถ้วน</p>
+          <button class="btn btn-primary btn-block btn-lg" onclick="doLogin()">🚀 เข้าสู่ระบบ</button>
         </div>
       </div>
     </div>
 
-    <!-- ===== DASHBOARD ===== -->
+    <!-- DASHBOARD -->
     <div id="page-dashboard" class="page">
-      <div class="container">
+      <div class="container-wide">
         <div class="page-title">📊 แดชบอร์ดภาพรวม</div>
         <div class="stats-grid">
-          <div class="stat-card"><div class="stat-icon">📝</div><div class="stat-value" id="stat-total">0</div><div class="stat-label">การประเมินทั้งหมด</div></div>
-          <div class="stat-card"><div class="stat-icon">💚</div><div class="stat-value" id="stat-normal">0</div><div class="stat-label">ปกติ</div></div>
-          <div class="stat-card"><div class="stat-icon">💛</div><div class="stat-value" id="stat-low">0</div><div class="stat-label">เสี่ยงเล็กน้อย</div></div>
-          <div class="stat-card"><div class="stat-icon">🧡</div><div class="stat-value" id="stat-mid">0</div><div class="stat-label">เสี่ยงปานกลาง</div></div>
-          <div class="stat-card"><div class="stat-icon">❤️</div><div class="stat-value" id="stat-high">0</div><div class="stat-label">เสี่ยงสูง / สูงมาก</div></div>
+          <div class="stat-card">
+            <div class="stat-icon">📝</div>
+            <div class="stat-value" id="stat-total">0</div>
+            <div class="stat-label">การประเมินทั้งหมด</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">💚</div>
+            <div class="stat-value" id="stat-normal">0</div>
+            <div class="stat-label">ปกติ</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">💛</div>
+            <div class="stat-value" id="stat-low">0</div>
+            <div class="stat-label">เสี่ยงเล็กน้อย</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🧡</div>
+            <div class="stat-value" id="stat-mid">0</div>
+            <div class="stat-label">เสี่ยงปานกลาง</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">❤️</div>
+            <div class="stat-value" id="stat-high">0</div>
+            <div class="stat-label">เสี่ยงสูง / สูงมาก</div>
+          </div>
         </div>
         <div class="card">
           <div class="card-title">📊 กราฟระดับความเสี่ยง</div>
           <div class="chart-bars" id="chart-risk"></div>
+          <div style="height:32px"></div>
         </div>
         <div class="card">
           <div class="card-title">🕐 การประเมินล่าสุด</div>
           <div class="table-wrap">
             <table>
-              <thead><tr><th>วันที่</th><th>ชื่อ</th><th>ชั้น</th><th>คะแนน</th><th>ระดับ</th></tr></thead>
+              <thead>
+                <tr>
+                  <th>วันที่</th>
+                  <th>ชื่อ</th>
+                  <th>ชั้น</th>
+                  <th>คะแนน</th>
+                  <th>ระดับ</th>
+                </tr>
+              </thead>
               <tbody id="recent-table"></tbody>
             </table>
           </div>
-          <div id="recent-pagination" style="display:flex;justify-content:center;align-items:center;gap:12px;margin-top:16px;"></div>
+          <div id="recent-pagination"
+            style="display:flex;justify-content:center;align-items:center;gap:12px;margin-top:16px;"></div>
         </div>
       </div>
     </div>
 
-    <!-- ===== ASSESSMENT ===== -->
+    <!-- ASSESSMENT -->
     <div id="page-assess" class="page active">
-      <div class="container" style="max-width:800px">
-        <div class="page-title">📝 แบบประเมินสุขภาพจิตนักเรียน</div>
+      <div class="container">
+
+        <!-- Hero -->
+        <div class="hero-banner">
+          <h2>📋 แบบประเมินสุขภาพจิตนักเรียน</h2>
+          <p>เลือกอีโมจิที่ตรงกับความรู้สึกของคุณในช่วง 2 สัปดาห์ที่ผ่านมา 💕</p>
+        </div>
+
+        <!-- Student Info -->
         <div class="card">
-          <div class="card-title">👤 ข้อมูลนักเรียน</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-            <div class="form-group"><label>ชื่อ-นามสกุล</label><input type="text" id="f-name" placeholder="ชื่อ นามสกุล"></div>
-            <div class="form-group"><label>ชั้นเรียน</label>
+          <div class="card-title">🎒 ข้อมูลนักเรียน</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>✏️ ชื่อ-นามสกุล</label>
+              <input type="text" id="f-name" placeholder="ชื่อ นามสกุล">
+            </div>
+            <div class="form-group">
+              <label>🏫 ชั้นเรียน</label>
               <select id="f-class">
-                <option value="">เลือกชั้น</option>
-                <option>ม.1</option><option>ม.2</option><option>ม.3</option>
-                <option>ม.4</option><option>ม.5</option><option>ม.6</option>
-                <option>ป.1</option><option>ป.2</option><option>ป.3</option>
-                <option>ป.4</option><option>ป.5</option><option>ป.6</option>
+                <option value="">เลือกชั้น...</option>
+                <option>ม.1</option>
+                <option>ม.2</option>
+                <option>ม.3</option>
+                <option>ม.4</option>
+                <option>ม.5</option>
+                <option>ม.6</option>
+                <option>ป.1</option>
+                <option>ป.2</option>
+                <option>ป.3</option>
+                <option>ป.4</option>
+                <option>ป.5</option>
+                <option>ป.6</option>
               </select>
             </div>
-            <div class="form-group"><label>เลขที่</label><input type="number" id="f-num" placeholder="เลขที่"></div>
-            <div class="form-group"><label>อายุ</label><input type="number" id="f-age" placeholder="อายุ"></div>
-            <div class="form-group"><label>เพศ</label>
+            <div class="form-group">
+              <label>🔢 เลขที่</label>
+              <input type="number" id="f-num" placeholder="เลขที่">
+            </div>
+            <div class="form-group">
+              <label>🎂 อายุ</label>
+              <input type="number" id="f-age" placeholder="อายุ (ปี)">
+            </div>
+            <div class="form-group">
+              <label>🌸 เพศ</label>
               <select id="f-gender">
-                <option value="">เลือกเพศ</option>
-                <option>ชาย</option><option>หญิง</option><option>อื่นๆ</option>
+                <option value="">เลือกเพศ...</option>
+                <option>ชาย</option>
+                <option>หญิง</option>
+                <option>อื่นๆ</option>
               </select>
+            </div>
+            <div class="form-group">
+              <label>📧 อีเมล <span style="font-weight:500;color:var(--text2)">(รับผลประเมินทางอีเมล)</span></label>
+              <input type="email" id="f-email" placeholder="example@email.com">
             </div>
           </div>
         </div>
+
+        <!-- Questions -->
         <div class="card">
-          <div class="card-title">📋 คำถามประเมินสุขภาพจิต</div>
-          <p style="color:var(--text2);font-size:14px;margin-bottom:20px">เลือกคะแนน 0-4 ตามระดับที่ตรงกับความรู้สึกในช่วง 2 สัปดาห์ที่ผ่านมา<br>0 = ไม่เลย, 1 = นานๆ ครั้ง, 2 = บางครั้ง, 3 = บ่อย, 4 = ทุกวัน</p>
-          <div class="progress-bar"><div class="fill" id="progress-fill" style="width:0%"></div></div>
-          <p class="progress-text" id="progress-text">0 / 10 ข้อ</p>
-          <div id="questions-container"></div>
+          <div class="card-title">🧠 คำถามประเมินสุขภาพจิต</div>
+          <div class="progress-wrap">
+            <div class="progress-bar">
+              <div class="fill" id="progress-fill" style="width:0%"></div>
+            </div>
+            <div class="progress-text" id="progress-text">0 / 10 ข้อ</div>
+          </div>
+          <div id="questions-container" style="margin-top:20px"></div>
         </div>
-        <div class="form-group"><label>📝 หมายเหตุเพิ่มเติม (ถ้ามี)</label><textarea id="f-note" rows="3" placeholder="หมายเหตุ..."></textarea></div>
-        <button class="btn btn-success btn-block btn-lg" onclick="submitAssessment()">✅ ส่งแบบประเมิน</button>
+
+        <!-- Note -->
+        <div class="form-group">
+          <label>📝 หมายเหตุเพิ่มเติม (ถ้ามี)</label>
+          <textarea id="f-note" rows="3" placeholder="เขียนถึงสิ่งที่อยากบอกคุณครูเพิ่มเติม..."></textarea>
+        </div>
+
+        <button class="btn btn-success btn-block btn-lg" onclick="submitAssessment()">
+          🌟 ส่งแบบประเมิน
+        </button>
       </div>
     </div>
 
-    <!-- ===== RESULTS ===== -->
+    <!-- RESULTS -->
     <div id="page-results" class="page">
-      <div class="container">
+      <div class="container-wide">
         <div class="page-title">📋 ผลการประเมินทั้งหมด</div>
         <div class="card">
-          <div class="card-title" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;align-items:center;">
+          <div class="card-title" style="justify-content:space-between;flex-wrap:wrap;gap:10px">
             <span>🔍 ตารางผลประเมิน</span>
-            <div style="display:flex;gap:8px;flex-wrap:wrap;font-weight:normal;font-size:14px;">
+            <div style="display:flex;gap:8px;flex-wrap:wrap;font-weight:normal;font-size:14px">
               <input type="text" id="filter-name" placeholder="ค้นหาชื่อ..."
-                style="padding:8px 12px;border-radius:8px;border:1px solid var(--bg3);background:var(--bg);color:var(--text);font-family:inherit;width:150px;"
+                style="padding:8px 12px;border-radius:12px;border:2px solid var(--border);background:var(--bg);color:var(--text);font-family:inherit;width:145px"
                 oninput="applyResultsFilter()">
               <select id="filter-class"
-                style="padding:8px 12px;border-radius:8px;border:1px solid var(--bg3);background:var(--bg);color:var(--text);font-family:inherit;width:120px;"
+                style="padding:8px 12px;border-radius:12px;border:2px solid var(--border);background:var(--bg);color:var(--text);font-family:inherit"
                 onchange="applyResultsFilter()">
-                <option value="">ทุกชั้นเรียน</option>
-                <option>ม.1</option><option>ม.2</option><option>ม.3</option>
-                <option>ม.4</option><option>ม.5</option><option>ม.6</option>
-                <option>ป.1</option><option>ป.2</option><option>ป.3</option>
-                <option>ป.4</option><option>ป.5</option><option>ป.6</option>
+                <option value="">ทุกชั้น</option>
+                <option>ม.1</option>
+                <option>ม.2</option>
+                <option>ม.3</option>
+                <option>ม.4</option>
+                <option>ม.5</option>
+                <option>ม.6</option>
               </select>
               <select id="filter-risk"
-                style="padding:8px 12px;border-radius:8px;border:1px solid var(--bg3);background:var(--bg);color:var(--text);font-family:inherit;width:140px;"
+                style="padding:8px 12px;border-radius:12px;border:2px solid var(--border);background:var(--bg);color:var(--text);font-family:inherit"
                 onchange="applyResultsFilter()">
                 <option value="">ทุกระดับ</option>
-                <option>ปกติ</option><option>เสี่ยงเล็กน้อย</option>
-                <option>เสี่ยงปานกลาง</option><option>เสี่ยงสูง</option><option>เสี่ยงสูงมาก</option>
+                <option>ปกติ</option>
+                <option>เสี่ยงเล็กน้อย</option>
+                <option>เสี่ยงปานกลาง</option>
+                <option>เสี่ยงสูง</option>
+                <option>เสี่ยงสูงมาก</option>
               </select>
             </div>
           </div>
           <div class="table-wrap">
             <table>
-              <thead><tr><th>#</th><th>วันที่</th><th>ชื่อ</th><th>ชั้น</th><th>เลขที่</th><th>คะแนน</th><th>ระดับ</th></tr></thead>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>วันที่</th>
+                  <th>ชื่อ</th>
+                  <th>ชั้น</th>
+                  <th>เลขที่</th>
+                  <th>คะแนน</th>
+                  <th>ระดับ</th>
+                </tr>
+              </thead>
               <tbody id="results-table"></tbody>
             </table>
           </div>
@@ -567,23 +1460,38 @@
 
   </div><!-- end .main-content -->
 
-  <!-- ===== RESULT MODAL ===== -->
-  <div id="result-modal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.9);z-index:9000;align-items:center;justify-content:center;padding:20px">
-    <div class="card" style="max-width:500px;width:100%;text-align:center">
-      <h2 style="margin-bottom:16px">📊 ผลการประเมิน</h2>
-      <div class="result-circle">
-        <div class="score" id="res-score">0</div>
-        <div class="score-label">คะแนนรวม / 40</div>
+  <!-- RESULT MODAL -->
+  <div id="result-modal" class="result-modal-bg">
+    <div class="result-modal-box">
+      <span class="result-emoji" id="res-emoji">🎉</span>
+      <div class="result-score-big" id="res-score">0</div>
+      <div class="result-score-sub" id="res-score-label">คะแนนรวม / 40</div>
+      <div class="result-level" id="res-level"></div>
+      <div class="result-advice" id="res-advice"></div>
+      <button class="btn btn-primary btn-lg" onclick="closeResultModal()">✅ ตกลง</button>
+    </div>
+  </div>
+
+  <!-- DETAIL MODAL -->
+  <div id="detail-modal" class="detail-modal-bg" onclick="closeDetailModal(event)">
+    <div class="detail-modal-box">
+      <div class="detail-modal-header">
+        <div class="detail-modal-title">📄 รายละเอียดการประเมิน</div>
+        <button class="detail-modal-close" onclick="closeDetailModal()">✕</button>
       </div>
-      <div id="res-level" style="font-size:22px;font-weight:700;margin-bottom:12px"></div>
-      <p id="res-advice" style="color:var(--text2);font-size:14px;margin-bottom:24px"></p>
-      <button class="btn btn-primary" onclick="closeResultModal()">✅ ตกลง</button>
+      <div id="detail-modal-body"></div>
+      <div style="margin-top:20px">
+        <button class="btn btn-primary btn-block" onclick="closeDetailModal()">✅ ปิด</button>
+      </div>
     </div>
   </div>
 
   <script>
-    // ===== CONFIG =====
-    const API_URL = 'https://script.google.com/macros/s/AKfycbyrvdZ5q7LmGhAsgtfTKjyzIK0hmZPWYpBU_9rn1yZod5yHoMi_C1unjNqsAROXwUmgiQ/exec';
+    // =================================================================
+    // ⚙️  CONFIG — แก้ไข API URL ที่นี่ที่เดียวเท่านั้น
+    // =================================================================
+    const API_URL = 'https://script.google.com/macros/s/AKfycbwOf_rgaJVbMOV3stcX9nCSEaNOMpyYRQIOAfIHt8-GHfZ4xwJUBD8Qxe0FLmSwYbcp/exec';
+    // =================================================================
 
     // ===== STATE =====
     let currentUser = null;
@@ -595,60 +1503,47 @@
     const recentItemsPerPage = 5;
     let allResultsData = [];
 
+    // อีโมจิสำหรับตัวเลือกคำตอบ 0-4
+    const ANSWER_EMOJIS = ['😊', '🙂', '😐', '😟', '😢'];
+
     const FALLBACK_QUESTIONS = [
-      { order:1,  text:'รู้สึกเครียดหรือกดดัน',                    labels:['ไม่เลย','นานๆ ครั้ง','บางครั้ง','บ่อย','ทุกวัน'] },
-      { order:2,  text:'นอนหลับยากหรือนอนไม่พอ',                   labels:['ไม่เลย','นานๆ ครั้ง','บางครั้ง','บ่อย','ทุกวัน'] },
-      { order:3,  text:'รู้สึกเศร้าหรือหดหู่',                     labels:['ไม่เลย','นานๆ ครั้ง','บางครั้ง','บ่อย','ทุกวัน'] },
-      { order:4,  text:'ไม่อยากทำกิจกรรมที่เคยชอบ',               labels:['ไม่เลย','นานๆ ครั้ง','บางครั้ง','บ่อย','ทุกวัน'] },
-      { order:5,  text:'รู้สึกวิตกกังวล',                           labels:['ไม่เลย','นานๆ ครั้ง','บางครั้ง','บ่อย','ทุกวัน'] },
-      { order:6,  text:'มีปัญหาด้านสมาธิ',                          labels:['ไม่เลย','นานๆ ครั้ง','บางครั้ง','บ่อย','ทุกวัน'] },
-      { order:7,  text:'รู้สึกโดดเดี่ยวหรือไม่มีเพื่อน',          labels:['ไม่เลย','นานๆ ครั้ง','บางครั้ง','บ่อย','ทุกวัน'] },
-      { order:8,  text:'มีปัญหาความสัมพันธ์กับครอบครัว',           labels:['ไม่เลย','นานๆ ครั้ง','บางครั้ง','บ่อย','ทุกวัน'] },
-      { order:9,  text:'รู้สึกไม่มีคุณค่าในตัวเอง',               labels:['ไม่เลย','นานๆ ครั้ง','บางครั้ง','บ่อย','ทุกวัน'] },
-      { order:10, text:'มีความคิดทำร้ายตัวเอง',                    labels:['ไม่เลย','นานๆ ครั้ง','บางครั้ง','บ่อย','ทุกวัน'] }
+      { order: 1, text: 'รู้สึกเครียดหรือกดดัน', labels: ['ไม่เลย', 'นานๆ ครั้ง', 'บางครั้ง', 'บ่อย', 'ทุกวัน'] },
+      { order: 2, text: 'นอนหลับยากหรือนอนไม่พอ', labels: ['ไม่เลย', 'นานๆ ครั้ง', 'บางครั้ง', 'บ่อย', 'ทุกวัน'] },
+      { order: 3, text: 'รู้สึกเศร้าหรือหดหู่', labels: ['ไม่เลย', 'นานๆ ครั้ง', 'บางครั้ง', 'บ่อย', 'ทุกวัน'] },
+      { order: 4, text: 'ไม่อยากทำกิจกรรมที่เคยชอบ', labels: ['ไม่เลย', 'นานๆ ครั้ง', 'บางครั้ง', 'บ่อย', 'ทุกวัน'] },
+      { order: 5, text: 'รู้สึกวิตกกังวล', labels: ['ไม่เลย', 'นานๆ ครั้ง', 'บางครั้ง', 'บ่อย', 'ทุกวัน'] },
+      { order: 6, text: 'มีปัญหาด้านสมาธิ', labels: ['ไม่เลย', 'นานๆ ครั้ง', 'บางครั้ง', 'บ่อย', 'ทุกวัน'] },
+      { order: 7, text: 'รู้สึกโดดเดี่ยวหรือไม่มีเพื่อน', labels: ['ไม่เลย', 'นานๆ ครั้ง', 'บางครั้ง', 'บ่อย', 'ทุกวัน'] },
+      { order: 8, text: 'มีปัญหาความสัมพันธ์กับครอบครัว', labels: ['ไม่เลย', 'นานๆ ครั้ง', 'บางครั้ง', 'บ่อย', 'ทุกวัน'] },
+      { order: 9, text: 'รู้สึกไม่มีคุณค่าในตัวเอง', labels: ['ไม่เลย', 'นานๆ ครั้ง', 'บางครั้ง', 'บ่อย', 'ทุกวัน'] },
+      { order: 10, text: 'มีความคิดทำร้ายตัวเอง', labels: ['ไม่เลย', 'นานๆ ครั้ง', 'บางครั้ง', 'บ่อย', 'ทุกวัน'] }
     ];
 
     // ===== SIDEBAR =====
     function toggleSidebar() {
       const sb = document.getElementById('sidebar');
-      const bd = document.getElementById('sidebar-backdrop');
-      if (sb.classList.contains('open')) {
-        closeSidebar();
-      } else {
-        sb.classList.add('open');
-        bd.classList.add('visible');
-        // Highlight active nav item
-        syncSidebarActive();
-      }
+      sb.classList.contains('open') ? closeSidebar() : openSidebar();
     }
-
+    function openSidebar() {
+      document.getElementById('sidebar').classList.add('open');
+      document.getElementById('sidebar-backdrop').classList.add('visible');
+      syncSidebarActive();
+    }
     function closeSidebar() {
       document.getElementById('sidebar').classList.remove('open');
       document.getElementById('sidebar-backdrop').classList.remove('visible');
     }
-
     function syncSidebarActive() {
-      // Remove active from all sidebar nav btns
       document.querySelectorAll('.sidebar-nav-btn').forEach(b => b.classList.remove('active'));
-      // Find current active page and mark corresponding sidebar btn
-      const activePage = document.querySelector('.page.active');
-      if (!activePage) return;
-      const pageId = activePage.id.replace('page-', '');
-      const btn = document.getElementById('snav-' + pageId);
+      const active = document.querySelector('.page.active');
+      if (!active) return;
+      const btn = document.getElementById('snav-' + active.id.replace('page-', ''));
       if (btn) btn.classList.add('active');
     }
-
-    // Called when user clicks a sidebar menu item
     function sidebarNav(pageId, btn) {
-      // Update active state visually
       document.querySelectorAll('.sidebar-nav-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-
-      // Close sidebar with slight delay so user sees the active state change
-      setTimeout(() => {
-        closeSidebar();
-        showPage(pageId, null);
-      }, 180);
+      setTimeout(() => { closeSidebar(); showPage(pageId, null); }, 180);
     }
 
     // ===== NAVIGATION =====
@@ -670,17 +1565,18 @@
     });
 
     function renderQuestionsSkeleton() {
-      const container = document.getElementById('questions-container');
-      container.innerHTML = Array.from({length:3},(_,i) => `
-        <div class="question-card" style="opacity:.5">
-          <div style="height:20px;background:var(--bg3);border-radius:8px;width:${60+i*10}%;margin-bottom:12px;animation:pulse 1.5s infinite"></div>
-          <div style="display:flex;gap:8px">${Array.from({length:5},()=>`<div style="height:40px;width:80px;background:var(--bg3);border-radius:10px;animation:pulse 1.5s infinite"></div>`).join('')}</div>
+      const c = document.getElementById('questions-container');
+      c.innerHTML = `
+      <div class="question-card">
+        <div class="skeleton" style="height:24px;width:70%;margin-bottom:20px"></div>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px">
+          ${Array(5).fill('<div class="skeleton" style="height:80px;border-radius:18px"></div>').join('')}
         </div>
-      `).join('');
+      </div>`;
     }
 
     async function loadAndRenderQuestions() {
-      if (API_URL === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL') {
+      if (!API_URL || API_URL === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL') {
         questions = FALLBACK_QUESTIONS;
         renderQuestions();
         showToast('ใช้คำถามตัวอย่าง (ยังไม่ได้ตั้ง API URL)', 'info');
@@ -689,7 +1585,7 @@
       const res = await apiCall('getQuestions');
       if (res.success && res.data && res.data.length > 0) {
         questions = res.data;
-        showToast(`โหลดคำถาม ${questions.length} ข้อจาก Google Sheets เรียบร้อย`, 'success');
+        showToast(`โหลด ${questions.length} คำถามแล้ว 🎉`, 'success');
       } else {
         questions = FALLBACK_QUESTIONS;
         showToast('ใช้คำถามตัวอย่าง (' + (res.message || 'ไม่พบชีต Questions') + ')', 'info');
@@ -699,135 +1595,99 @@
 
     function renderQuestions() {
       const container = document.getElementById('questions-container');
-      if (!questions.length) { container.innerHTML = '<p style="color:var(--text2);text-align:center">กำลังโหลดคำถาม...</p>'; return; }
+      if (!questions.length) {
+        container.innerHTML = '<p style="color:var(--text2);text-align:center;padding:20px">กำลังโหลดคำถาม...</p>';
+        return;
+      }
       const q = questions[currentQuestionIndex];
+      const emojis = ANSWER_EMOJIS; // default 5 emojis
+
       container.innerHTML = `
-        <div class="question-card" style="animation:fadeIn 0.3s ease">
-          <div class="q-text" style="font-size:18px"><span class="q-number" style="width:40px;height:40px;font-size:18px">${currentQuestionIndex+1}</span> ${q.text}</div>
-          <div class="radio-group" style="display:flex;flex-direction:column;gap:12px;margin-top:24px;">
-            ${q.labels.map((lbl,v) => `
-              <div class="radio-option">
-                <input type="radio" name="q${currentQuestionIndex}" id="q${currentQuestionIndex}_${v}" value="${v}"
-                  onchange="selectAnswer(${currentQuestionIndex},${v})"
-                  ${userAnswers[currentQuestionIndex]===String(v)||userAnswers[currentQuestionIndex]===v?'checked':''}>
-                <label for="q${currentQuestionIndex}_${v}" style="font-size:16px;padding:14px 20px;">${v} — ${lbl}</label>
-              </div>
-            `).join('')}
-          </div>
-          <div style="display:flex;justify-content:space-between;margin-top:24px;">
-            <button class="btn btn-outline" onclick="prevQuestion()" ${currentQuestionIndex===0?'style="visibility:hidden"':''}>⬅️ ก่อนหน้า</button>
-            <button class="btn btn-outline" onclick="nextQuestion()" ${currentQuestionIndex===questions.length-1?'style="visibility:hidden"':''}>ถัดไป ➡️</button>
-          </div>
+      <div class="question-card" style="animation:fadeIn .3s ease">
+        <div class="q-text">
+          <span class="q-number-badge">${currentQuestionIndex + 1}</span>
+          ${q.text}
         </div>
-      `;
+        <div class="emoji-group">
+          ${q.labels.map((lbl, v) => `
+            <div class="emoji-option">
+              <input type="radio" name="q${currentQuestionIndex}"
+                id="q${currentQuestionIndex}_${v}" value="${v}"
+                onchange="selectAnswer(${currentQuestionIndex},${v})"
+                ${userAnswers[currentQuestionIndex] === v ? 'checked' : ''}>
+              <label for="q${currentQuestionIndex}_${v}">
+                <span class="emo">${emojis[v] || v}</span>
+                <span class="lbl">${lbl}</span>
+              </label>
+            </div>
+          `).join('')}
+        </div>
+        <div class="q-nav">
+          <button class="btn btn-outline" onclick="prevQuestion()"
+            ${currentQuestionIndex === 0 ? 'style="visibility:hidden"' : ''}>
+            ⬅️ ก่อนหน้า
+          </button>
+          <span style="font-size:13px;color:var(--text2);font-weight:600">
+            ${currentQuestionIndex + 1} / ${questions.length}
+          </span>
+          <button class="btn btn-outline" onclick="nextQuestion()"
+            ${currentQuestionIndex === questions.length - 1 ? 'style="visibility:hidden"' : ''}>
+            ถัดไป ➡️
+          </button>
+        </div>
+      </div>`;
       updateProgress();
     }
 
     function selectAnswer(qIndex, value) {
       userAnswers[qIndex] = value;
       updateProgress();
-      setTimeout(() => { if (currentQuestionIndex < questions.length-1) nextQuestion(); }, 400);
+      // เลื่อนไปข้อถัดไปอัตโนมัติ
+      setTimeout(() => {
+        if (currentQuestionIndex < questions.length - 1) nextQuestion();
+      }, 450);
     }
-    function prevQuestion() { if (currentQuestionIndex>0) { currentQuestionIndex--; renderQuestions(); } }
-    function nextQuestion() { if (currentQuestionIndex<questions.length-1) { currentQuestionIndex++; renderQuestions(); } }
+
+    function prevQuestion() { if (currentQuestionIndex > 0) { currentQuestionIndex--; renderQuestions(); } }
+    function nextQuestion() { if (currentQuestionIndex < questions.length - 1) { currentQuestionIndex++; renderQuestions(); } }
+
     function updateProgress() {
-      let answered = userAnswers.filter(a=>a!==undefined&&a!==null).length;
-      const pct = Math.round(answered/questions.length*100);
-      document.getElementById('progress-fill').style.width = pct+'%';
+      const answered = userAnswers.filter(a => a !== undefined && a !== null).length;
+      const pct = Math.round(answered / questions.length * 100);
+      document.getElementById('progress-fill').style.width = pct + '%';
       document.getElementById('progress-text').textContent = `${answered} / ${questions.length} ข้อ`;
-    }
-
-    // ===== TOAST =====
-    function showToast(msg, type='info') {
-      const container = document.getElementById('toast-container');
-      const icons = {success:'✅',error:'❌',info:'ℹ️'};
-      const toast = document.createElement('div');
-      toast.className = `toast ${type}`;
-      toast.innerHTML = `<span>${icons[type]||''}</span><span>${msg}</span>`;
-      container.appendChild(toast);
-      setTimeout(()=>{ toast.style.animation='slideOut .4s ease forwards'; setTimeout(()=>toast.remove(),400); },3500);
-    }
-
-    // ===== CONFETTI =====
-    function fireConfetti() {
-      const colors = ['#6366f1','#f59e0b','#10b981','#ef4444','#a78bfa','#fbbf24','#34d399'];
-      for (let i=0;i<60;i++) {
-        const piece = document.createElement('div');
-        piece.className='confetti-piece';
-        piece.style.left=Math.random()*100+'vw';
-        piece.style.background=colors[Math.floor(Math.random()*colors.length)];
-        piece.style.animationDuration=(2+Math.random()*2)+'s';
-        piece.style.animationDelay=Math.random()*.5+'s';
-        piece.style.borderRadius=Math.random()>.5?'50%':'2px';
-        piece.style.width=(6+Math.random()*8)+'px';
-        piece.style.height=(6+Math.random()*8)+'px';
-        document.body.appendChild(piece);
-        setTimeout(()=>piece.remove(),4000);
-      }
-    }
-
-    // ===== LOADER =====
-    function showLoader() { document.getElementById('loader').style.display='flex'; }
-    function hideLoader() { document.getElementById('loader').style.display='none'; }
-
-    // ===== API =====
-    async function apiCall(action, data={}) {
-      showLoader();
-      try {
-        const res = await fetch(API_URL,{
-          method:'POST',
-          headers:{'Content-Type':'text/plain;charset=utf-8'},
-          body: JSON.stringify({action,...data})
-        });
-        const json = await res.json();
-        hideLoader();
-        return json;
-      } catch(err) {
-        hideLoader();
-        showToast('เกิดข้อผิดพลาดในการเชื่อมต่อ: '+err.message,'error');
-        return {success:false,message:err.message};
-      }
     }
 
     // ===== LOGIN =====
     async function doLogin() {
       const username = document.getElementById('login-user').value.trim();
       const password = document.getElementById('login-pass').value.trim();
-      if (!username||!password) { showToast('กรุณากรอกชื่อผู้ใช้และรหัสผ่าน','error'); return; }
+      if (!username || !password) { showToast('กรุณากรอกชื่อผู้ใช้และรหัสผ่าน', 'error'); return; }
 
-      const res = await apiCall('login',{username,password});
+      const res = await apiCall('login', { username, password });
       if (res.success) {
         currentUser = res.user;
-
-        // Update sidebar user info
         document.getElementById('sidebar-username').textContent = currentUser.fullName;
         document.getElementById('sidebar-avatar').textContent = currentUser.fullName.charAt(0).toUpperCase();
-
-        // Show admin toggle button, hide login button
         document.getElementById('btn-admin-toggle').style.display = 'inline-flex';
         document.getElementById('btn-login-nav').style.display = 'none';
-
         showPage('dashboard', null);
-        showToast(`ยินดีต้อนรับ ${currentUser.fullName}`,'success');
+        showToast(`🎉 ยินดีต้อนรับ ${currentUser.fullName}`, 'success');
         fireConfetti();
       } else {
-        showToast(res.message,'error');
+        showToast(res.message, 'error');
       }
     }
 
     function doLogout() {
       currentUser = null;
       closeSidebar();
-
-      // Restore navbar state
       document.getElementById('btn-admin-toggle').style.display = 'none';
       document.getElementById('btn-login-nav').style.display = 'inline-flex';
-
       document.getElementById('login-user').value = '';
       document.getElementById('login-pass').value = '';
-
       showPage('assess', null);
-      showToast('ออกจากระบบแล้ว','info');
+      showToast('ออกจากระบบแล้ว 👋', 'info');
     }
 
     // ===== DASHBOARD =====
@@ -835,27 +1695,25 @@
       const res = await apiCall('getDashboard');
       if (!res.success) return;
       const d = res.data;
-      document.getElementById('stat-total').textContent  = d.totalAssessments;
-      document.getElementById('stat-normal').textContent = d.riskLevels['ปกติ']||0;
-      document.getElementById('stat-low').textContent    = d.riskLevels['เสี่ยงเล็กน้อย']||0;
-      document.getElementById('stat-mid').textContent    = d.riskLevels['เสี่ยงปานกลาง']||0;
-      document.getElementById('stat-high').textContent   = (d.riskLevels['เสี่ยงสูง']||0)+(d.riskLevels['เสี่ยงสูงมาก']||0);
+      document.getElementById('stat-total').textContent = d.totalAssessments;
+      document.getElementById('stat-normal').textContent = d.riskLevels['ปกติ'] || 0;
+      document.getElementById('stat-low').textContent = d.riskLevels['เสี่ยงเล็กน้อย'] || 0;
+      document.getElementById('stat-mid').textContent = d.riskLevels['เสี่ยงปานกลาง'] || 0;
+      document.getElementById('stat-high').textContent = (d.riskLevels['เสี่ยงสูง'] || 0) + (d.riskLevels['เสี่ยงสูงมาก'] || 0);
 
-      const chartEl = document.getElementById('chart-risk');
       const levels = [
-        {label:'ปกติ',    value:d.riskLevels['ปกติ']||0,           color:'#10b981'},
-        {label:'เล็กน้อย',value:d.riskLevels['เสี่ยงเล็กน้อย']||0, color:'#fbbf24'},
-        {label:'ปานกลาง', value:d.riskLevels['เสี่ยงปานกลาง']||0,  color:'#fb923c'},
-        {label:'สูง',     value:d.riskLevels['เสี่ยงสูง']||0,       color:'#ef4444'},
-        {label:'สูงมาก',  value:d.riskLevels['เสี่ยงสูงมาก']||0,   color:'#a855f7'}
+        { label: 'ปกติ', value: d.riskLevels['ปกติ'] || 0, color: '#06d6a0' },
+        { label: 'เล็กน้อย', value: d.riskLevels['เสี่ยงเล็กน้อย'] || 0, color: '#ffd166' },
+        { label: 'ปานกลาง', value: d.riskLevels['เสี่ยงปานกลาง'] || 0, color: '#ff9f43' },
+        { label: 'สูง', value: d.riskLevels['เสี่ยงสูง'] || 0, color: '#ef476f' },
+        { label: 'สูงมาก', value: d.riskLevels['เสี่ยงสูงมาก'] || 0, color: '#9b5de5' }
       ];
-      const max = Math.max(...levels.map(l=>l.value),1);
-      chartEl.innerHTML = levels.map(l=>`
-        <div class="chart-bar" style="height:${Math.max(l.value/max*160,8)}px;background:${l.color}">
-          <div class="bar-value">${l.value}</div>
-          <div class="bar-label">${l.label}</div>
-        </div>
-      `).join('');
+      const max = Math.max(...levels.map(l => l.value), 1);
+      document.getElementById('chart-risk').innerHTML = levels.map(l => `
+      <div class="chart-bar" style="height:${Math.max(l.value / max * 160, 8)}px;background:${l.color}">
+        <div class="bar-value">${l.value}</div>
+        <div class="bar-label">${l.label}</div>
+      </div>`).join('');
 
       recentAssessmentsData = d.recentAssessments;
       currentRecentPage = 1;
@@ -865,131 +1723,316 @@
     function renderRecentTable() {
       const tbody = document.getElementById('recent-table');
       const pag = document.getElementById('recent-pagination');
-      if (!recentAssessmentsData||recentAssessmentsData.length===0) {
-        tbody.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--text2);padding:32px">ยังไม่มีข้อมูลการประเมิน</td></tr>';
-        pag.innerHTML=''; return;
+      if (!recentAssessmentsData || !recentAssessmentsData.length) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text2);padding:32px">ยังไม่มีข้อมูล</td></tr>';
+        pag.innerHTML = ''; return;
       }
-      const totalPages = Math.ceil(recentAssessmentsData.length/recentItemsPerPage);
-      const start = (currentRecentPage-1)*recentItemsPerPage;
-      const data = recentAssessmentsData.slice(start,start+recentItemsPerPage);
-      tbody.innerHTML = data.map(r=>`
-        <tr><td>${formatDate(r.date)}</td><td>${r.name}</td><td>${r.classroom}</td><td>${r.score}</td><td>${getBadge(r.riskLevel)}</td></tr>
-      `).join('');
-      if (totalPages>1) {
-        pag.innerHTML=`
-          <button class="btn btn-outline" style="padding:4px 12px;font-size:13px" onclick="changeRecentPage(-1)" ${currentRecentPage===1?'disabled':''}>ก่อนหน้า</button>
-          <span style="font-size:13px">หน้า ${currentRecentPage} / ${totalPages}</span>
-          <button class="btn btn-outline" style="padding:4px 12px;font-size:13px" onclick="changeRecentPage(1)" ${currentRecentPage===totalPages?'disabled':''}>ถัดไป</button>
-        `;
-      } else pag.innerHTML='';
+      const total = Math.ceil(recentAssessmentsData.length / recentItemsPerPage);
+      const start = (currentRecentPage - 1) * recentItemsPerPage;
+      const data = recentAssessmentsData.slice(start, start + recentItemsPerPage);
+      tbody.innerHTML = data.map(r => `
+      <tr>
+        <td>${formatDate(r.date)}</td>
+        <td>${r.name}</td>
+        <td>${r.classroom}</td>
+        <td><strong>${r.score}</strong></td>
+        <td>${getBadge(r.riskLevel)}</td>
+      </tr>`).join('');
+      pag.innerHTML = total > 1 ? `
+      <button class="btn btn-outline" style="padding:6px 14px;font-size:13px"
+        onclick="changeRecentPage(-1)" ${currentRecentPage === 1 ? 'disabled' : ''}>← ก่อนหน้า</button>
+      <span style="font-size:13px;font-weight:600;color:var(--text2)">${currentRecentPage} / ${total}</span>
+      <button class="btn btn-outline" style="padding:6px 14px;font-size:13px"
+        onclick="changeRecentPage(1)" ${currentRecentPage === total ? 'disabled' : ''}>ถัดไป →</button>` : '';
     }
+    function changeRecentPage(d) { currentRecentPage += d; renderRecentTable(); }
 
-    function changeRecentPage(dir) { currentRecentPage+=dir; renderRecentTable(); }
-
-    // ===== SUBMIT =====
+    // ===== SUBMIT ASSESSMENT =====
     async function submitAssessment() {
-      const name   = document.getElementById('f-name').value.trim();
-      const cls    = document.getElementById('f-class').value;
-      const num    = document.getElementById('f-num').value;
-      const age    = document.getElementById('f-age').value;
+      const name = document.getElementById('f-name').value.trim();
+      const cls = document.getElementById('f-class').value;
+      const num = document.getElementById('f-num').value;
+      const age = document.getElementById('f-age').value;
       const gender = document.getElementById('f-gender').value;
-      const note   = document.getElementById('f-note').value.trim();
+      const email = document.getElementById('f-email').value.trim();
+      const note = document.getElementById('f-note').value.trim();
 
-      if (!name||!cls||!num||!age||!gender) { showToast('กรุณากรอกข้อมูลนักเรียนให้ครบ','error'); return; }
+      if (!name || !cls || !num || !age || !gender) {
+        showToast('กรุณากรอกข้อมูลนักเรียนให้ครบ 📋', 'error'); return;
+      }
 
-      const answers=[];
-      for (let i=0;i<questions.length;i++) {
-        if (userAnswers[i]===undefined||userAnswers[i]===null) {
-          showToast(`กรุณาตอบข้อที่ ${i+1}`,'error');
-          currentQuestionIndex=i; renderQuestions(); return;
+      // ตรวจรูปแบบอีเมลถ้ากรอกมา
+      if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        showToast('รูปแบบอีเมลไม่ถูกต้อง 📧', 'error'); return;
+      }
+
+      const answers = [];
+      for (let i = 0; i < questions.length; i++) {
+        if (userAnswers[i] === undefined || userAnswers[i] === null) {
+          showToast(`กรุณาตอบข้อที่ ${i + 1} ด้วยนะ 😊`, 'error');
+          currentQuestionIndex = i; renderQuestions(); return;
         }
         answers.push(userAnswers[i]);
       }
 
-      const res = await apiCall('submitAssessment',{
-        studentName:name, classroom:cls, studentNumber:num,
-        age, gender, answers, note, assessor:currentUser?.fullName||''
+      const res = await apiCall('submitAssessment', {
+        studentName: name, classroom: cls, studentNumber: num,
+        age, gender, answers, note,
+        email: email || '',
+        assessor: currentUser?.fullName || ''
       });
 
       if (res.success) {
-        showToast(res.message,'success');
+        showToast(res.message, 'success');
+        if (email && res.emailSent) showToast('📧 ส่งผลประเมินไปยังอีเมลแล้ว!', 'info');
+        if (res.telegramSent) showToast('📲 แจ้งเตือน Telegram แล้ว!', 'info');
         fireConfetti();
         showResultModal(res.result);
         resetForm();
       } else {
-        showToast(res.message,'error');
+        showToast('❌ ' + res.message, 'error');
       }
     }
 
     function showResultModal(result) {
-      const modal = document.getElementById('result-modal');
-      modal.style.display='flex';
+      document.getElementById('result-modal').style.display = 'flex';
       document.getElementById('res-score').textContent = result.totalScore;
+      const maxScore = result.questionCount ? result.questionCount * 4 : questions.length * 4;
+      document.getElementById('res-score-label').textContent = `คะแนนรวม / ${maxScore}`;
       const levelEl = document.getElementById('res-level');
       levelEl.textContent = result.riskLevel;
       levelEl.style.color = getRiskColor(result.riskLevel);
+      const emojis = { 'ปกติ': '🎉', 'เสี่ยงเล็กน้อย': '💛', 'เสี่ยงปานกลาง': '🧡', 'เสี่ยงสูง': '❤️', 'เสี่ยงสูงมาก': '🚨' };
       const advices = {
-        'ปกติ':          '🎉 สุขภาพจิตอยู่ในเกณฑ์ดี ควรดูแลรักษาสุขภาพจิตต่อไป',
-        'เสี่ยงเล็กน้อย':'💛 มีความเสี่ยงเล็กน้อย ควรหมั่นสังเกตตัวเองและพูดคุยกับคนใกล้ชิด',
-        'เสี่ยงปานกลาง': '🧡 ควรเข้าพบครูแนะแนวหรือนักจิตวิทยาเพื่อปรึกษา',
-        'เสี่ยงสูง':     '❤️ ควรเข้าพบผู้เชี่ยวชาญด้านสุขภาพจิตโดยเร็ว',
-        'เสี่ยงสูงมาก':  '🚨 ต้องได้รับการดูแลจากผู้เชี่ยวชาญอย่างเร่งด่วน'
+        'ปกติ': '🌈 สุขภาพจิตอยู่ในเกณฑ์ดี ดูแลตัวเองต่อไปนะ!',
+        'เสี่ยงเล็กน้อย': '💛 มีความเสี่ยงเล็กน้อย ลองคุยกับเพื่อนหรือคนในครอบครัวดูนะ',
+        'เสี่ยงปานกลาง': '🧡 ควรพูดคุยกับครูแนะแนวหรือผู้ใหญ่ที่ไว้วางใจ',
+        'เสี่ยงสูง': '❤️ ควรเข้าพบผู้เชี่ยวชาญด้านสุขภาพจิตโดยเร็ว',
+        'เสี่ยงสูงมาก': '🚨 ต้องได้รับการดูแลจากผู้เชี่ยวชาญอย่างเร่งด่วน'
       };
-      document.getElementById('res-advice').textContent = advices[result.riskLevel]||'';
+      document.getElementById('res-emoji').textContent = emojis[result.riskLevel] || '📊';
+      document.getElementById('res-advice').textContent = advices[result.riskLevel] || '';
     }
 
-    function closeResultModal() { document.getElementById('result-modal').style.display='none'; }
+    function closeResultModal() { document.getElementById('result-modal').style.display = 'none'; }
 
     function resetForm() {
-      ['f-name','f-num','f-age','f-note'].forEach(id=>document.getElementById(id).value='');
-      document.getElementById('f-class').selectedIndex=0;
-      document.getElementById('f-gender').selectedIndex=0;
-      userAnswers=[]; currentQuestionIndex=0; renderQuestions();
+      ['f-name', 'f-num', 'f-age', 'f-note', 'f-email'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('f-class').selectedIndex = 0;
+      document.getElementById('f-gender').selectedIndex = 0;
+      userAnswers = []; currentQuestionIndex = 0;
+      renderQuestions();
     }
 
-    // ===== RESULTS =====
+    // ===== RESULTS PAGE =====
     async function loadResults() {
       const res = await apiCall('getResponses');
-      if (!res.success||!res.data||res.data.length===0) { allResultsData=[]; renderResultsTable(); return; }
-      allResultsData=res.data; renderResultsTable();
+      if (!res.success || !res.data || !res.data.length) { allResultsData = []; renderResultsTable(); return; }
+      allResultsData = res.data;
+      renderResultsTable();
     }
 
     function applyResultsFilter() { renderResultsTable(); }
 
     function renderResultsTable() {
       const tbody = document.getElementById('results-table');
-      if (!allResultsData.length) { tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--text2);padding:32px">ยังไม่มีข้อมูล</td></tr>'; return; }
-      const fName  = document.getElementById('filter-name')?.value.toLowerCase()||'';
-      const fClass = document.getElementById('filter-class')?.value||'';
-      const fRisk  = document.getElementById('filter-risk')?.value||'';
-      const filtered = allResultsData.filter(r=>{
-        const matchName  = r['ชื่อ-นามสกุลนักเรียน'].toLowerCase().includes(fName);
-        const matchClass = fClass===''||r['ชั้นเรียน']===fClass;
-        const matchRisk  = fRisk===''||r['ระดับความเสี่ยง']===fRisk;
-        return matchName&&matchClass&&matchRisk;
+      if (!allResultsData.length) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text2);padding:32px">ยังไม่มีข้อมูล</td></tr>'; return;
+      }
+      const fName = document.getElementById('filter-name')?.value.toLowerCase() || '';
+      const fClass = document.getElementById('filter-class')?.value || '';
+      const fRisk = document.getElementById('filter-risk')?.value || '';
+      const filtered = allResultsData.filter(r => {
+        const matchName = r['ชื่อ-นามสกุลนักเรียน'].toLowerCase().includes(fName);
+        const matchClass = fClass === '' || r['ชั้นเรียน'] === fClass;
+        const matchRisk = fRisk === '' || r['ระดับความเสี่ยง'] === fRisk;
+        return matchName && matchClass && matchRisk;
       });
-      if (!filtered.length) { tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--text2);padding:32px">ไม่พบข้อมูลที่ค้นหา</td></tr>'; return; }
-      tbody.innerHTML=filtered.map((r,i)=>`
-        <tr>
-          <td>${i+1}</td><td>${formatDate(r['วันที่ประเมิน'])}</td><td>${r['ชื่อ-นามสกุลนักเรียน']}</td>
-          <td>${r['ชั้นเรียน']}</td><td>${r['เลขที่']}</td><td>${r['คะแนนรวม']}</td><td>${getBadge(r['ระดับความเสี่ยง'])}</td>
-        </tr>
-      `).join('');
+      if (!filtered.length) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text2);padding:32px">ไม่พบข้อมูลที่ค้นหา</td></tr>'; return;
+      }
+      tbody.innerHTML = filtered.map((r, i) => `
+      <tr class="clickable-row" onclick="openDetailModal(${allResultsData.indexOf(r)})" title="คลิกเพื่อดูรายละเอียด">
+        <td>${i + 1}</td>
+        <td>${formatDate(r['วันที่ประเมิน'])}</td>
+        <td>${r['ชื่อ-นามสกุลนักเรียน']}</td>
+        <td>${r['ชั้นเรียน']}</td>
+        <td>${r['เลขที่']}</td>
+        <td><strong>${r['คะแนนรวม']}</strong></td>
+        <td>${getBadge(r['ระดับความเสี่ยง'])}</td>
+      </tr>`).join('');
+    }
+
+    // ===== DETAIL MODAL =====
+    function openDetailModal(idx) {
+      const r = allResultsData[idx];
+      if (!r) return;
+
+      // ฟิลด์ข้อมูลหลัก
+      const mainFields = [
+        { label: '📅 วันที่ประเมิน', value: formatDate(r['วันที่ประเมิน']) },
+        { label: '👤 ชื่อ-นามสกุลนักเรียน', value: r['ชื่อ-นามสกุลนักเรียน'] || '-' },
+        { label: '🏫 ชั้นเรียน', value: r['ชั้นเรียน'] || '-' },
+        { label: '🔢 เลขที่', value: r['เลขที่'] || '-' },
+        { label: '🎂 อายุ', value: r['อายุ'] ? r['อายุ'] + ' ปี' : '-' },
+        { label: '🌸 เพศ', value: r['เพศ'] || '-' },
+      ];
+
+      // ดึงคะแนนรายข้อ (คอลัมน์ที่ขึ้นต้นด้วย "ข้อ")
+      const answerFields = Object.entries(r)
+        .filter(([k]) => k.startsWith('ข้อ'))
+        .map(([k, v]) => ({ label: k, value: v !== '' && v !== null && v !== undefined ? String(v) : '-' }));
+
+      const riskLevel = r['ระดับความเสี่ยง'] || '-';
+      const totalScore = r['คะแนนรวม'] !== undefined ? r['คะแนนรวม'] : '-';
+      const note = r['หมายเหตุ'] || '';
+      const assessor = r['ผู้ประเมิน'] || '-';
+
+      const emojis = { 'ปกติ': '🎉', 'เสี่ยงเล็กน้อย': '💛', 'เสี่ยงปานกลาง': '🧡', 'เสี่ยงสูง': '❤️', 'เสี่ยงสูงมาก': '🚨' };
+
+      let html = '';
+
+      // ข้อมูลหลัก
+      mainFields.forEach(f => {
+        html += `<div class="detail-row">
+        <div class="detail-label">${f.label}</div>
+        <div class="detail-value">${f.value}</div>
+      </div>`;
+      });
+
+      // คะแนนรวมและระดับ
+      html += `<div class="detail-row">
+      <div class="detail-label">🏆 คะแนนรวม</div>
+      <div class="detail-value score-highlight">${totalScore}</div>
+    </div>
+    <div class="detail-row">
+      <div class="detail-label">⚠️ ระดับความเสี่ยง</div>
+      <div class="detail-value">${emojis[riskLevel] || ''} ${getBadge(riskLevel)}</div>
+    </div>`;
+
+      // คะแนนรายข้อ
+      if (answerFields.length > 0) {
+        html += `<div class="detail-row" style="border-bottom:2px solid var(--border);margin-top:4px">
+        <div class="detail-label" style="font-size:12px;margin-bottom:8px">📋 คะแนนรายข้อ</div>
+        ${answerFields.map(f => `
+          <div style="display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px solid rgba(155,93,229,.06)">
+            <span style="font-size:13px;color:var(--text2);flex:1;padding-right:12px">${f.label}</span>
+            <span style="font-size:14px;font-weight:700;color:var(--purple);flex-shrink:0">${f.value}</span>
+          </div>`).join('')}
+      </div>`;
+      }
+
+      // ผู้ประเมิน
+      html += `<div class="detail-row">
+      <div class="detail-label">👩‍🏫 ผู้ประเมิน</div>
+      <div class="detail-value">${assessor}</div>
+    </div>`;
+
+      // หมายเหตุ
+      html += `<div class="detail-row" style="border-bottom:none">
+      <div class="detail-label">📝 หมายเหตุ</div>
+      <div class="detail-note">${note || '<span style="color:var(--text2);font-style:italic">ไม่มีหมายเหตุ</span>'}</div>
+    </div>`;
+
+      document.getElementById('detail-modal-body').innerHTML = html;
+      document.getElementById('detail-modal').style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeDetailModal(e) {
+      if (e && e.target !== document.getElementById('detail-modal')) return;
+      document.getElementById('detail-modal').style.display = 'none';
+      document.body.style.overflow = '';
+    }
+
+    // ===== API =====
+    async function apiCall(action, data = {}) {
+      showLoader();
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ action, ...data })
+        });
+        // ---- BUG FIX: ตรวจสอบ HTTP status ก่อน ----
+        if (!res.ok) {
+          hideLoader();
+          showToast(`เซิร์ฟเวอร์ตอบกลับ HTTP ${res.status}`, 'error');
+          return { success: false, message: `HTTP ${res.status}` };
+        }
+        const text = await res.text();
+        let json;
+        try { json = JSON.parse(text); }
+        catch (e) {
+          hideLoader();
+          showToast('รับข้อมูลไม่ได้ (ตอบกลับไม่ใช่ JSON)', 'error');
+          return { success: false, message: 'Invalid JSON response' };
+        }
+        hideLoader();
+        return json;
+      } catch (err) {
+        hideLoader();
+        // ---- BUG FIX: แยก CORS error ออกจาก network error ----
+        const msg = err.message.includes('Failed to fetch')
+          ? 'ไม่สามารถเชื่อมต่อ API ได้ (ตรวจสอบ API URL หรือ Deploy ใหม่)'
+          : 'เกิดข้อผิดพลาด: ' + err.message;
+        showToast(msg, 'error');
+        return { success: false, message: err.message };
+      }
     }
 
     // ===== HELPERS =====
     function formatDate(d) {
       if (!d) return '-';
-      try { return new Date(d).toLocaleDateString('th-TH',{day:'2-digit',month:'short',year:'2-digit'}); }
+      try { return new Date(d).toLocaleDateString('th-TH', { day: '2-digit', month: 'short', year: '2-digit' }); }
       catch { return d; }
     }
     function getRiskColor(level) {
-      return {'ปกติ':'#10b981','เสี่ยงเล็กน้อย':'#fbbf24','เสี่ยงปานกลาง':'#fb923c','เสี่ยงสูง':'#ef4444','เสี่ยงสูงมาก':'#a855f7'}[level]||'#94a3b8';
+      return { 'ปกติ': '#06d6a0', 'เสี่ยงเล็กน้อย': '#c27d00', 'เสี่ยงปานกลาง': '#c96a00', 'เสี่ยงสูง': '#ef476f', 'เสี่ยงสูงมาก': '#7b2fbe' }[level] || '#7c6fa0';
     }
     function getBadge(level) {
-      const cls = {'ปกติ':'badge-green','เสี่ยงเล็กน้อย':'badge-yellow','เสี่ยงปานกลาง':'badge-orange','เสี่ยงสูง':'badge-red','เสี่ยงสูงมาก':'badge-purple'};
-      return `<span class="badge ${cls[level]||''}">${level}</span>`;
+      const cls = { 'ปกติ': 'badge-green', 'เสี่ยงเล็กน้อย': 'badge-yellow', 'เสี่ยงปานกลาง': 'badge-orange', 'เสี่ยงสูง': 'badge-red', 'เสี่ยงสูงมาก': 'badge-purple' };
+      return `<span class="badge ${cls[level] || ''}">${level}</span>`;
+    }
+
+    // ===== TOAST =====
+    function showToast(msg, type = 'info') {
+      const c = document.getElementById('toast-container');
+      const icons = { success: '✅', error: '❌', info: '💬' };
+      const el = document.createElement('div');
+      el.className = `toast ${type}`;
+      el.innerHTML = `<span>${icons[type] || ''}</span><span>${msg}</span>`;
+      c.appendChild(el);
+      setTimeout(() => { el.style.animation = 'slideOut .4s ease forwards'; setTimeout(() => el.remove(), 400); }, 3500);
+    }
+
+    // ===== LOADER =====
+    function showLoader() {
+      const l = document.getElementById('loader');
+      l.style.display = 'flex';
+      const emojis = ['🌟', '💫', '✨', '🎯', '🌈'];
+      l.querySelector('.loader-emoji').textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    }
+    function hideLoader() { document.getElementById('loader').style.display = 'none'; }
+
+    // ===== CONFETTI =====
+    function fireConfetti() {
+      const colors = ['#ff6eb4', '#9b5de5', '#ffd166', '#06d6a0', '#4ea8de', '#ff9f43', '#ef476f'];
+      for (let i = 0; i < 70; i++) {
+        const p = document.createElement('div');
+        p.className = 'confetti-piece';
+        p.style.left = Math.random() * 100 + 'vw';
+        p.style.background = colors[Math.floor(Math.random() * colors.length)];
+        p.style.animationDuration = (2 + Math.random() * 2) + 's';
+        p.style.animationDelay = Math.random() * .5 + 's';
+        p.style.borderRadius = Math.random() > .5 ? '50%' : '3px';
+        p.style.width = (5 + Math.random() * 8) + 'px';
+        p.style.height = (5 + Math.random() * 8) + 'px';
+        document.body.appendChild(p);
+        setTimeout(() => p.remove(), 4000);
+      }
     }
   </script>
 </body>
+
 </html>
